@@ -50,3 +50,8 @@ are implemented with 335 passing backend tests. During the already approved live
 integration check, confirm the upstream honors identity content encoding; do not
 claim vendor acceptance from offline tests. Review latest pushed CI and preserve
 all existing paid-test, native-app and private-data gates.
+
+Owner actions are consolidated in `OWNER_SETUP.md`; do not repeatedly request them.
+After a reported settings change, recheck Apple reads/key presence before resuming
+gated validation. Run `ios/scripts/validate-macos.sh` on an actual Mac and preserve
+real build evidence; syntax/Linux checks alone are not native acceptance.

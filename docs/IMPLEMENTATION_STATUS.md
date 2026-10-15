@@ -87,3 +87,13 @@ accounting validation still run after fetching. Two defects were reproduced befo
 implementation; boundary and compression regressions were added. Full backend:
 335 passed, one existing deprecation warning. All requests used offline transports;
 real provider compatibility remains gated on credentials and the controlled test.
+
+### Owner prerequisite handoff
+
+PR #3's provider-limits commit passed remote backend CI. Existing cloud draft
+inspection confirms Apple domains are listed and the model secret has no saved
+binding; saving is not runtime application/publication. `OWNER_SETUP.md` provides
+secure configuration, finalized-export and local Mac instructions. The new Mac
+validation script has passed Bash syntax and Linux refusal checks; its unsigned
+Xcode build path remains unexecuted. No hosted macOS cost or paid inference was
+introduced. Routine engineering remains independent of these external actions.
