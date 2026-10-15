@@ -12,6 +12,7 @@ The PRD, SPEC, AI architecture and roadmap in `docs/` are provisional reconstruc
 ## Layout
 - `backend/app/main.py`: FastAPI request contracts.
 - `backend/app/provider.py`: deterministic mock and opt-in structured-output OpenAI provider.
+- `backend/app/apple_identity.py`: internal, offline-tested Apple JWT verifier foundation; no login route or sessions.
 - `backend/tests/`: API and provider adapter tests.
 - `backend/evaluation/`: synthetic-only contract evaluation and blinded human-review templates.
 - `ios/`: SwiftUI test harness, configurable networking, Swift Package tests and XcodeGen project spec.
@@ -51,5 +52,7 @@ See [iOS instructions](ios/README.md) for configurable backend endpoints, Founda
 
 ## Guardrails
 No real private conversations, API keys, or credentials in the public repository, test data or logs. Consent, deletion and tenant isolation must precede storing conversation imports. Significant changes to UX, costs, architecture and releases require owner approval.
+
+The approved [Apple verifier foundation](docs/AUTHENTICATION.md) validates a conservative signature/claim contract with synthetic tests. Current Apple compatibility remains unverified; authentication integration, nonce replay protection, sessions and private-data access are not implemented.
 
 Future Codex tasks discover repository-wide instructions in [AGENTS.md](AGENTS.md). Supporting procedures are in [the engineering protocol](docs/ENGINEERING_PROTOCOL.md); read [implementation status](docs/IMPLEMENTATION_STATUS.md), [decisions](docs/DECISIONS.md) and [next tasks](docs/NEXT_TASKS.md) before development.
