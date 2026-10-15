@@ -52,4 +52,4 @@ See [iOS instructions](ios/README.md) for configurable backend endpoints, Founda
 ## Guardrails
 No real private conversations, API keys, or credentials in the public repository, test data or logs. Consent, deletion and tenant isolation must precede storing conversation imports. Significant changes to UX, costs, architecture and releases require owner approval.
 
-See `docs/IMPLEMENTATION_STATUS.md` for verified status and the next tasks.
+Future Codex tasks discover repository-wide instructions in [AGENTS.md](AGENTS.md). Supporting procedures are in [the engineering protocol](docs/ENGINEERING_PROTOCOL.md); read [implementation status](docs/IMPLEMENTATION_STATUS.md), [decisions](docs/DECISIONS.md) and [next tasks](docs/NEXT_TASKS.md) before development.

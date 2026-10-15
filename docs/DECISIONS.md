@@ -16,6 +16,10 @@ The finalized PRD, SPEC, architecture research and approved UI designs are not p
 - Reconcile the finalized source documents and approved workflows before consequential product, UX or architecture changes.
 - The owner approved `gpt-5.4-mini` and a one-time $2 maximum for synthetic generate/rewrite integration testing. Secure credentials, verified model compatibility/pricing and a reliable bound remain required before paid requests. See `OPEN_REQUIREMENTS.md`; never place keys in chat, Git or fixtures.
 - Run XcodeGen, an actual Xcode build, simulator/device acceptance and signing on macOS. Linux Foundation tests establish only shared client behavior.
-- Git read access works, but the GitHub Actions API and OpenAI documentation fetch returned HTTP 403 in this environment. Remote workflow success and current provider/model compatibility remain unverified.
+- Git read access works. GitHub API access initially returned HTTP 403 but now succeeds; the backend workflow for the original `main` commit `15169a6` completed successfully. New branch checks are separate. OpenAI model/pricing compatibility remains unverified.
+
+## Permanent engineering workflow
+
+At the owner's direction, root `AGENTS.md` now establishes autonomous routine implementation, consequential clarification throughout development, explicit approval boundaries, intelligent tool/subagent use, TDD, security review, feature branches, validated commits/PRs and durable project memory. Detailed procedures live in `ENGINEERING_PROTOCOL.md`; actionable handoff work lives in `NEXT_TASKS.md`. This does not approve new spending, product changes or releases.
 
 These implementation choices do not authorize deployments, recurring expenses, production releases, private-data retention policies or finalized designs.

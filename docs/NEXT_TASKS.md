@@ -4,8 +4,8 @@ Use with `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and `OPEN_REQUIREMENTS.md`. 
 
 ## Ready
 
-1. **Validate and summarize completed blinded human reviews.** Extend the offline evaluation workflow to reject edited/mismatched review material, validate A/B/tie ratings and report per-dimension preference counts with missing ratings distinct. Test failures first, use invented data only, and make no statistical or personalization-superiority claim.
-2. **Review evaluation artifact creation for partial writes.** Preserve existing outputs and make paired review/key failures explicit and recoverable; add a regression test before changing behavior. Keep the solution local and dependency-free.
+1. **Expand held-out synthetic evaluation coverage.** Add invented multi-turn or adversarial-context scenarios for both generate and rewrite, with explicit intent/relevance review guidance. Preserve dataset versioning and regression evidence; no private data or authenticity-superiority claims.
+2. **Review request-state regressions in the existing iOS harness.** Investigate editing/toggling inputs during an in-flight request and stale suggestion handling, using testable shared state where possible. Preserve the existing UX; native compilation/acceptance still requires Xcode.
 
 ## Blocked / prerequisites
 
@@ -13,7 +13,7 @@ Use with `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and `OPEN_REQUIREMENTS.md`. 
 - **Small live AI experiment:** requires secure key and current reviewed model/pricing/context/output-cap evidence, plus the intact one-time campaign ledger. Keep the mock default. Existing approval is one-time, not renewed by another task. No paid calls until every prerequisite is established.
 - **Private history, personalization and retrieval:** reconcile approved identity/consent/deletion/isolation requirements before private data flows. Local synthetic research may proceed without collecting private conversations.
 - **Consequential UX/product work:** finalized originals will arrive in `docs/source/`; ask only for decisions that materially block the selected implementation.
-- **Remote PR workflow:** last GitHub Actions API read returned HTTP 403. Recheck only when needed or after a meaningful access change; retain validated local commits and PR details if remote operations remain unavailable.
+- **Remote checks:** GitHub API access now works; original `main` backend CI is verified successful. Inspect the feature-branch PR checks separately; do not confuse prior CI with validation of new commits.
 
 ## Completed foundation
 
@@ -21,3 +21,5 @@ Use with `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and `OPEN_REQUIREMENTS.md`. 
 - Shared Swift client, wire fixtures, real local Swift-to-FastAPI networking checks.
 - Synthetic evaluation reports/blind-review templates and offline-tested one-time budget controls.
 - Root engineering operating protocol with linked supporting procedures and durable task memory.
+- Validated blinded-review summaries with optional verified-key unblinding; missing ratings and excluded cases remain distinct. Actual CLI smoke uses invented ratings only.
+- Detached review/key objects and safe ordinary paired-write rollback, with meaningful failing tests captured before implementation. Crash-atomicity is not claimed.
