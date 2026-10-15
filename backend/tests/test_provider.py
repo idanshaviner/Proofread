@@ -150,3 +150,104 @@ async def test_untrusted_text_is_serialized_as_user_data():
     request = REQUEST.model_copy(update={"incoming_message": instruction})
     model = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(handler))
     assert len((await model.generate(request)).candidates) == 3
+
+
+@pytest.mark.parametrize("preferred,legacy,expected", [
+    ("preferred-fake", "legacy-fake", "preferred-fake"),
+    (" preferred-fake ", None, "preferred-fake"),
+    ("   ", "legacy-fake", "legacy-fake"),
+    (None, "legacy-fake", "legacy-fake"),
+])
+def test_provider_key_alias_precedence(monkeypatch, preferred, legacy, expected):
+    monkeypatch.setenv("PROOFREAD_PROVIDER", "openai")
+    monkeypatch.setenv("PROOFREAD_MODEL", "test-model")
+    for name, value in (("PROOFREAD_OPENAI_API_KEY", preferred), ("OPENAI_API_KEY", legacy)):
+        if value is None:
+            monkeypatch.delenv(name, raising=False)
+        else:
+            monkeypatch.setenv(name, value)
+    assert build_provider().key == expected
+
+
+@pytest.mark.parametrize("invalid_cap", [0, -1, 16385, True, False, "512", 512.0, None])
+def test_output_token_cap_is_a_bounded_integer(invalid_cap):
+    with pytest.raises(ValueError, match="max_completion_tokens"):
+        OpenAIProvider("fake-key", "test-model", max_completion_tokens=invalid_cap)
+
+
+@pytest.mark.parametrize("cap", [1, 512, 2048, 16384])
+def test_payload_preflight_exposes_exact_cap_and_standard_tier_without_credentials(cap):
+    provider = OpenAIProvider("fake-key", "test-model", max_completion_tokens=cap)
+    payload = provider.build_payload(REQUEST)
+    assert payload["max_completion_tokens"] == cap
+    assert payload["service_tier"] == "default"
+    assert "fake-key" not in json.dumps(payload)
+    assert json.loads(payload["messages"][1]["content"])["incoming_message"] == "hey"
+
+
+@pytest.mark.asyncio
+async def test_metadata_has_valid_usage_and_no_public_contract_change():
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        assert json.loads(request.content)["max_completion_tokens"] == 512
+        assert json.loads(request.content)["service_tier"] == "default"
+        body = completion()
+        body.update(usage={"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150},
+                    model="test-model-2026-10-15", service_tier="default")
+        return httpx.Response(200, json=body, headers={"x-request-id": "req_fake-123"})
+
+    provider = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(handler), max_completion_tokens=512)
+    answer, metadata = await provider.generate_with_metadata(REQUEST)
+    assert metadata.model_dump() == {
+        "prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150,
+        "finish_reason": "stop", "request_id": "req_fake-123",
+        "model": "test-model-2026-10-15", "service_tier": "default",
+    }
+    assert set(answer.model_dump()) == {"candidates", "provider", "personalized"}
+    assert len(calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_metadata_path_requires_usage_without_retry():
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(200, json=completion())
+
+    provider = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(handler))
+    with pytest.raises(ProviderFailure, match="usage metadata is unavailable"):
+        await provider.generate_with_metadata(REQUEST)
+    assert len(calls) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("usage", [
+    {}, {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 14},
+    {"prompt_tokens": -1, "completion_tokens": 5, "total_tokens": 4},
+    {"prompt_tokens": 10, "completion_tokens": -1, "total_tokens": 9},
+    {"prompt_tokens": "10", "completion_tokens": 5, "total_tokens": 15},
+    {"prompt_tokens": True, "completion_tokens": 5, "total_tokens": 6},
+    {"prompt_tokens": 10, "completion_tokens": 5.0, "total_tokens": 15},
+    {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": None},
+])
+async def test_invalid_accounting_is_not_accepted(usage):
+    body = completion()
+    body["usage"] = usage
+    provider = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(
+        lambda _: httpx.Response(200, json=body)))
+    with pytest.raises(ProviderFailure, match="AI generation is currently unavailable"):
+        await provider.generate_with_metadata(REQUEST)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("request_id", ["untrusted text including spaces", "x" * 257, "private🙂"])
+async def test_metadata_omits_malformed_request_ids(request_id):
+    body = completion()
+    body["usage"] = {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}
+    provider = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(
+        lambda _: httpx.Response(200, json=body, headers={"x-request-id": request_id.encode("utf-8")})))
+    _, metadata = await provider.generate_with_metadata(REQUEST)
+    assert metadata.request_id is None

@@ -7,6 +7,7 @@ import pytest
 def offline_provider_environment(monkeypatch):
     monkeypatch.setenv("PROOFREAD_PROVIDER", "mock")
     monkeypatch.delenv("PROOFREAD_MODEL", raising=False)
+    monkeypatch.delenv("PROOFREAD_OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     def deny_network(*args, **kwargs):
