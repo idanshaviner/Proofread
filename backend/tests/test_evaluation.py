@@ -12,7 +12,7 @@ from evaluation.runner import blind_comparison, evaluate, fingerprint, load_data
 def test_dataset_has_reproducible_synthetic_generate_and_rewrite_cases():
     dataset = load_dataset()
     assert fingerprint(dataset) == fingerprint(json.loads(json.dumps(dataset)))
-    assert len(dataset["cases"]) == 4
+    assert len(dataset["cases"]) == 8
     assert {case["request"]["mode"] for case in dataset["cases"]} == {"generate", "rewrite"}
     assert all(case["style_examples"] for case in dataset["cases"])
 
@@ -22,7 +22,7 @@ async def test_mock_report_has_contract_evidence_without_quality_claim():
     report = await evaluate(MockProvider())
     assert verify_report(report) == report
     assert report["system"]["mock"] is True
-    assert report["summary"]["contract_pass"] == 4
+    assert report["summary"]["contract_pass"] == 8
     assert report["summary"]["quality"] == "unmeasured"
     assert report["summary"]["authenticity_superiority"] == "not_established"
     assert all(record["latency_ms"] >= 0 for record in report["records"])
@@ -44,14 +44,14 @@ async def test_contract_failure_is_separate_from_provider_failure_and_quality():
 
     invalid = await evaluate(InvalidProvider())
     failed = await evaluate(FailingProvider())
-    assert invalid["summary"]["contract_failure"] == 4
-    assert failed["summary"]["provider_failure"] == 4
+    assert invalid["summary"]["contract_failure"] == 8
+    assert failed["summary"]["provider_failure"] == 8
     assert invalid["summary"]["quality"] == failed["summary"]["quality"] == "unmeasured"
     assert "upstream detail" not in json.dumps(failed)
     assert invalid["system"]["mock"] is False
     review, key = blind_comparison(invalid, failed)
     assert review["cases"] == []
-    assert len(key["cases"]) == 4
+    assert len(key["cases"]) == 8
 
 
 @pytest.mark.asyncio
@@ -63,7 +63,7 @@ async def test_review_is_reproducible_and_keeps_system_mapping_separate():
     assert "secret-left" not in json.dumps(review)
     assert "secret-right" not in json.dumps(review)
     assert key["systems"]["left"]["name"] == "secret-left"
-    assert len(review["cases"]) == 4
+    assert len(review["cases"]) == 8
     for case, mapping in zip(review["cases"], key["cases"]):
         assert set(case["options"]) == {"A", "B"}
         assert set((mapping["A"], mapping["B"])) == {"left", "right"}

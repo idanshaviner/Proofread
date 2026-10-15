@@ -26,8 +26,8 @@ def test_unrated_template_keeps_missing_separate_and_does_not_unblind(comparison
     left, right, review, key = comparison
     summary = summarize(review, left, right, seed=42)
     assert summary["status"] == "unrated"
-    assert summary["included_cases"] == 4 and summary["excluded_cases"] == 0
-    assert all(counts == {"A": 0, "B": 0, "tie": 0, "missing": 4}
+    assert summary["included_cases"] == 8 and summary["excluded_cases"] == 0
+    assert all(counts == {"A": 0, "B": 0, "tie": 0, "missing": 8}
                for counts in summary["dimensions"].values())
     assert "system_preferences" not in summary and "systems" not in summary
     assert summary["authenticity_superiority"] == "not_established"
@@ -36,14 +36,15 @@ def test_unrated_template_keeps_missing_separate_and_does_not_unblind(comparison
 def test_partial_ratings_count_votes_and_validated_underlying_systems(comparison):
     left, right, review, key = comparison
     votes = [("A", "B", "tie"), ("B", None, "A"), ("tie", "A", None), (None, "tie", "B")]
+    # Rate only the original baseline four; the stress cases remain unreviewed.
     for case, ratings in zip(review["cases"], votes):
         case["preferences"] = dict(zip(("authenticity", "helpfulness", "intent_preservation"), ratings))
         case["notes"] = "Invented reviewer note."
     summary = summarize(review, left, right, seed=42, key=key)
     assert summary["status"] == "partially_rated"
-    assert all(counts == {"A": 1, "B": 1, "tie": 1, "missing": 1}
+    assert all(counts == {"A": 1, "B": 1, "tie": 1, "missing": 5}
                for counts in summary["dimensions"].values())
-    assert summary["system_preferences"]["helpfulness"] == {"left": 2, "right": 0, "tie": 1, "missing": 1}
+    assert summary["system_preferences"]["helpfulness"] == {"left": 2, "right": 0, "tie": 1, "missing": 5}
     assert summary["systems"] == {"left": left["system"], "right": right["system"]}
     assert summary["reports"] == {"left": left["report_sha256"], "right": right["report_sha256"]}
     assert "Invented reviewer note" not in str(summary)
@@ -55,7 +56,7 @@ def test_complete_ratings_status_does_not_imply_quality_or_superiority(compariso
         case["preferences"] = {dimension: "tie" for dimension in case["preferences"]}
     summary = summarize(review, left, right, seed=42)
     assert summary["status"] == "complete"
-    assert all(counts == {"A": 0, "B": 0, "tie": 4, "missing": 0}
+    assert all(counts == {"A": 0, "B": 0, "tie": 8, "missing": 0}
                for counts in summary["dimensions"].values())
     assert summary["authenticity_superiority"] == "not_established"
 
@@ -129,7 +130,7 @@ def test_empty_review_from_provider_failures_is_not_positive_success():
     review, key = blind_comparison(failed, failed, seed=42)
     summary = summarize(review, failed, failed, seed=42, key=key)
     assert summary["status"] == "no_comparable_cases"
-    assert summary["included_cases"] == 0 and summary["excluded_cases"] == 4
+    assert summary["included_cases"] == 0 and summary["excluded_cases"] == 8
     assert all(counts == {"A": 0, "B": 0, "tie": 0, "missing": 0}
                for counts in summary["dimensions"].values())
 
@@ -158,8 +159,8 @@ def test_mixed_failed_cases_are_excluded_instead_of_missing_votes():
     right = asyncio.run(evaluate(MockProvider(), "synthetic-other"))
     review, key = blind_comparison(left, right, seed=42)
     summary = summarize(review, left, right, seed=42, key=key)
-    assert summary["included_cases"] == 2 and summary["excluded_cases"] == 2
-    assert all(counts["missing"] == 2 for counts in summary["dimensions"].values())
+    assert summary["included_cases"] == 4 and summary["excluded_cases"] == 4
+    assert all(counts["missing"] == 4 for counts in summary["dimensions"].values())
 
 
 def test_summary_does_not_mutate_review_or_key(comparison):

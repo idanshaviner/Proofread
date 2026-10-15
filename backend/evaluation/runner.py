@@ -67,13 +67,46 @@ def fingerprint(value):
 
 def load_dataset():
     dataset = json.loads(DATASET_PATH.read_text())
+    if (not isinstance(dataset, dict) or not isinstance(dataset.get("version"), str)
+            or not dataset["version"].strip() or not isinstance(dataset.get("provenance"), str)
+            or not dataset["provenance"].strip() or dataset.get("synthetic_only") is not True
+            or dataset.get("used_for_tuning") is not False):
+        raise ValueError("Evaluation requires versioned synthetic-only, untuned provenance")
+    policies = dataset.get("split_policy")
+    if (not isinstance(policies, dict) or set(policies) != {"baseline", "held_out_stress", "style_examples"}
+            or any(not isinstance(value, str) or not value.strip() for value in policies.values())):
+        raise ValueError("Evaluation requires explicit split and review-example policies")
+    if not isinstance(dataset.get("cases"), list) or not dataset["cases"]:
+        raise ValueError("Evaluation requires nonempty cases")
+    if any(not isinstance(case, dict) or not isinstance(case.get("id"), str) or not case["id"].strip()
+           for case in dataset["cases"]):
+        raise ValueError("Evaluation cases require nonblank IDs")
     ids = [case["id"] for case in dataset["cases"]]
     if len(ids) != len(set(ids)) or not ids:
         raise ValueError("Evaluation cases require unique IDs")
+    scenario_texts = set()
+    style_texts = set()
+    normalize = lambda text: " ".join(text.split()).casefold()
+    split_modes = {"baseline": set(), "held_out_stress": set()}
     for case in dataset["cases"]:
-        ReplyRequest.model_validate(case["request"])
-    if {case["request"]["mode"] for case in dataset["cases"]} != {"generate", "rewrite"}:
-        raise ValueError("Evaluation must include generate and rewrite")
+        if not isinstance(case.get("split"), str) or case["split"] not in split_modes:
+            raise ValueError("Evaluation case has an unknown split")
+        request = case.get("request")
+        if not isinstance(request, dict) or not set(request) <= set(ReplyRequest.model_fields):
+            raise ValueError("Evaluation requests must use the existing API fields")
+        validated = ReplyRequest.model_validate(request)
+        split_modes[case["split"]].add(validated.mode)
+        scenario_texts.update(normalize(text) for text in (validated.incoming_message, validated.draft) if text and text.strip())
+        examples = case.get("style_examples")
+        if (not isinstance(examples, list) or not examples
+                or any(not isinstance(example, str) or not example.strip() for example in examples)
+                or not isinstance(case.get("review_guidance"), str) or not case["review_guidance"].strip()):
+            raise ValueError("Each case requires invented review examples and guidance")
+        style_texts.update(normalize(example) for example in examples)
+    if any(modes != {"generate", "rewrite"} for modes in split_modes.values()):
+        raise ValueError("Each evaluation split must include generate and rewrite")
+    if scenario_texts & style_texts:
+        raise ValueError("Review style examples must not duplicate scenario messages or drafts")
     return dataset
 
 

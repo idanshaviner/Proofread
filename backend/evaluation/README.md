@@ -13,6 +13,14 @@ charges. Cases, incoming messages, drafts and style examples are entirely invent
 Do not replace them with private conversations. Files are created only at the
 explicit output paths and existing files are never overwritten.
 
+Dataset `synthetic-v2` has eight cases: four unchanged public baseline scenarios
+and four public evaluation-only stress scenarios, with both modes in each split.
+Stress cases cover quoted-instruction injection and contextual/conditional intent.
+They are not sealed or statistically independent holdouts; do not tune against
+them. Review voice examples must not duplicate incoming messages/drafts. The
+generic runner does not send those examples to the provider. The version/hash
+change invalidates old v1 reports; regenerate report/review/key sets together.
+
 Reports identify the adapter, mock provenance, optional model identity, dataset
 version, dataset digest, per-case measured latency and contract outcomes. Dataset
 and report SHA-256 digests detect accidental changes and mismatched comparisons;

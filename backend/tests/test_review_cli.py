@@ -35,8 +35,8 @@ def test_cli_counts_unrated_reviews_without_unblinding(artifacts, tmp_path, monk
     assert main() == 0
     summary = json.loads(output.read_text())
     assert summary["status"] == "unrated"
-    assert summary["included_cases"] == 4
-    assert summary["dimensions"]["authenticity"] == {"A": 0, "B": 0, "tie": 0, "missing": 4}
+    assert summary["included_cases"] == 8
+    assert summary["dimensions"]["authenticity"] == {"A": 0, "B": 0, "tie": 0, "missing": 8}
     assert summary["authenticity_superiority"] == "not_established"
     assert "system_preferences" not in summary and "systems" not in summary
     assert "left-identity" not in output.read_text()
@@ -54,9 +54,9 @@ def test_cli_summarizes_validated_ratings_and_preserves_output(artifacts, tmp_pa
     original = output.read_bytes()
     summary = json.loads(original)
     assert summary["status"] == "complete"
-    assert summary["dimensions"]["authenticity"]["A"] == 4
-    assert summary["dimensions"]["helpfulness"]["B"] == 4
-    assert summary["system_preferences"]["intent_preservation"]["tie"] == 4
+    assert summary["dimensions"]["authenticity"]["A"] == 8
+    assert summary["dimensions"]["helpfulness"]["B"] == 8
+    assert summary["system_preferences"]["intent_preservation"]["tie"] == 8
     assert "synthetic reviewer note" not in original.decode()
     with pytest.raises(SystemExit) as exc:
         main()
