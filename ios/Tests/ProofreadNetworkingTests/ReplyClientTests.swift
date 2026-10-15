@@ -104,11 +104,13 @@ final class ReplyClientTests: XCTestCase {
             mutation["candidates"] = changed
             mutations.append(mutation)
         }
-        var duplicate = candidates
-        duplicate[1]["text"] = "  " + (candidates[0]["text"] as! String).uppercased().replacingOccurrences(of: " ", with: "  ") + "\n"
-        var normalizedDuplicate = original
-        normalizedDuplicate["candidates"] = duplicate
-        mutations.append(normalizedDuplicate)
+        for separator in ["  ", "\t", "\n", "\u{00A0}"] {
+            var duplicate = candidates
+            duplicate[1]["text"] = "  " + (candidates[0]["text"] as! String).uppercased().replacingOccurrences(of: " ", with: separator) + "\n"
+            var normalizedDuplicate = original
+            normalizedDuplicate["candidates"] = duplicate
+            mutations.append(normalizedDuplicate)
+        }
         var missing = original
         missing.removeValue(forKey: "personalized")
         mutations.append(missing)

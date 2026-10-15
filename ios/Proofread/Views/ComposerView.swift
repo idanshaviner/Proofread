@@ -1,55 +1,45 @@
 import SwiftUI
 import UIKit
 
+@MainActor
 struct ComposerView: View {
-    let client: ReplyClient
-    @State private var incomingMessage = ""
-    @State private var relationship = ""
-    @State private var goal = ""
-    @State private var draft = ""
-    @State private var rewrite = false
-    @State private var loading = false
-    @State private var candidates: [ReplyCandidate] = []
-    @State private var error: String?
-    @State private var copiedID: Int?
+    @State private var model: ComposerModel
 
-    private var valid: Bool {
-        !incomingMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !relationship.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !goal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        (!rewrite || !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    init(client: ReplyClient) {
+        _model = State(initialValue: ComposerModel(generator: client.generate))
     }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Message context") {
-                    TextField("Incoming message", text: $incomingMessage, axis: .vertical)
-                    TextField("Relationship", text: $relationship)
-                    TextField("What do you want to achieve?", text: $goal, axis: .vertical)
+                    TextField("Incoming message", text: $model.input.incomingMessage, axis: .vertical)
+                    TextField("Relationship", text: $model.input.relationship)
+                    TextField("What do you want to achieve?", text: $model.input.goal, axis: .vertical)
                 }
                 Section("Mode") {
-                    Toggle("Rewrite my draft", isOn: $rewrite)
-                    if rewrite { TextField("Your draft", text: $draft, axis: .vertical) }
+                    Toggle("Rewrite my draft", isOn: $model.input.rewrite)
+                    if model.input.rewrite { TextField("Your draft", text: $model.input.draft, axis: .vertical) }
                 }
-                Button(loading ? "Generating…" : "Get three replies") {
-                    Task { await requestReplies() }
+                Button(model.loading ? "Generating…" : "Get three replies") {
+                    model.generate()
                 }
-                .disabled(!valid || loading)
-                if let error {
+                .disabled(!model.input.isValid || model.loading)
+                if let error = model.error {
                     Section("Error") { Text(error).foregroundStyle(.red) }
                 }
-                if !candidates.isEmpty {
+                if !model.candidates.isEmpty {
                     Section("Suggestions — tap to copy") {
-                        ForEach(candidates) { candidate in
+                        ForEach(model.candidates) { candidate in
                             Button {
-                                UIPasteboard.general.string = candidate.text
-                                copiedID = candidate.id
+                                if let text = model.copyCandidate(candidate.id) {
+                                    UIPasteboard.general.string = text
+                                }
                             } label: {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(candidate.label).font(.caption).foregroundStyle(.secondary)
                                     Text(candidate.text).foregroundStyle(.primary)
-                                    if copiedID == candidate.id {
+                                    if model.copiedID == candidate.id {
                                         Text("Copied").font(.caption).foregroundStyle(.green)
                                     }
                                 }
@@ -59,25 +49,7 @@ struct ComposerView: View {
                 }
             }
             .navigationTitle("Proofread")
-        }
-    }
-
-    @MainActor
-    private func requestReplies() async {
-        loading = true
-        error = nil
-        candidates = []
-        copiedID = nil
-        defer { loading = false }
-        do {
-            let response = try await client.generate(ReplyRequest(
-                mode: rewrite ? "rewrite" : "generate",
-                incomingMessage: incomingMessage, relationship: relationship,
-                goal: goal, draft: rewrite ? draft : nil
-            ))
-            candidates = response.candidates
-        } catch {
-            self.error = error.localizedDescription
+            .onDisappear { model.cancel() }
         }
     }
 }

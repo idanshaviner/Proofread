@@ -5,7 +5,7 @@ import PackageDescription
 // SwiftUI/UIKit. This supports Linux contract tests, not iOS build verification.
 let package = Package(
     name: "ProofreadNetworking",
-    platforms: [.iOS(.v17), .macOS(.v13)],
+    platforms: [.iOS(.v17), .macOS(.v14)],
     products: [.library(name: "ProofreadNetworking", targets: ["ProofreadNetworking"])],
     targets: [
         .target(
