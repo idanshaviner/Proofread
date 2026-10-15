@@ -21,7 +21,7 @@ class ReplyResponse(BaseModel):
 
     @model_validator(mode="after")
     def check_candidates(self):
-        if len(self.candidates) != 3 or len({c.text.strip().casefold() for c in self.candidates}) != 3:
+        if len(self.candidates) != 3 or len({" ".join(c.text.split()).casefold() for c in self.candidates}) != 3:
             raise ValueError("Exactly three distinct candidates required")
         return self
 
