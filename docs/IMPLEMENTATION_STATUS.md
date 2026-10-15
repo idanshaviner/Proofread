@@ -97,3 +97,11 @@ secure configuration, finalized-export and local Mac instructions. The new Mac
 validation script has passed Bash syntax and Linux refusal checks; its unsigned
 Xcode build path remains unexecuted. No hosted macOS cost or paid inference was
 introduced. Routine engineering remains independent of these external actions.
+
+### Local browser preview
+
+`tools/preview/start.command` starts a loopback-only developer harness backed by
+existing API routes and forced mock mode. This is an explicitly requested testing
+artifact, not a new native design. HTTP smoke verified HTML/no-store, generate,
+rewrite and invalid-input responses. Browser rendering/clipboard and Mac launcher
+execution remain unverified. No AI or private storage is enabled.
