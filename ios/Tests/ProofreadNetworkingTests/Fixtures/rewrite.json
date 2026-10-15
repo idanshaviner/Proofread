@@ -1,0 +1,21 @@
+{
+  "candidates": [
+    {
+      "text": "See you soon",
+      "label": "Natural",
+      "id": 1
+    },
+    {
+      "text": "See you soon!",
+      "label": "Direct",
+      "id": 2
+    },
+    {
+      "text": "See you soon :)",
+      "label": "Playful",
+      "id": 3
+    }
+  ],
+  "provider": "deterministic-mock",
+  "personalized": false
+}

@@ -1,31 +1,59 @@
 # Implementation status — October 15, 2026
 
-## Completed, code present in repository
-- Provisional PRD, SPEC, architecture and roadmap; finalized originals not yet imported.
-- FastAPI /health and /v1/responses endpoint with generate and rewrite.
-- Deterministic mock (default, never incurs LLM charges).
-- Opt-in OpenAI Chat Completions adapter with strict structured JSON schema, field validation, error mapping and mock-transport tests.
-- Native SwiftUI test-harness source, client, app entry point, and XcodeGen project specification.
+## Recovered project and scope
 
-## Verified
-- 9 backend Python tests passed locally (Python 3.13.5, pytest).
-- A GitHub workflow for backend tests exists; **workflow success has not yet been verified**.
-- Swift source was written but **not compiled with Xcode**, which requires macOS.
+- Read all existing repository documentation and application/test sources. PRD, SPEC, AI architecture and roadmap remain provisional reconstructions; finalized originals and approved UI designs were not recovered from this checkout.
+- `AGENTS.md` referenced a missing `DECISIONS.md`; a new engineering decision record captures actual implementation boundaries without claiming product approval.
+- Preserve the current native SwiftUI developer harness and provisional FastAPI service. The product is not production ready.
 
-## Still unimplemented / unverified
-- Live API inference (requires explicit opt-in, credential and potentially billed calls).
-- iOS simulator/device integration, signing, and acceptance.
-- Authentication, persistence, conversation consent and deletion, style extraction, retrieval, feedback and human AI quality evaluation.
-- No private conversations should be uploaded until privacy controls are in place.
+## Implemented
 
-## Next
-1. Verify GitHub CI and run XcodeGen/Xcode on macOS.
-2. Validate hosted model adapter in a limited authorized live integration test.
-3. Reconcile final project PRD, SPEC, research and roadmap.
-4. Design consent, secure identity and deletion before storing user histories.
+- FastAPI health and generate/rewrite endpoints, with deterministic, explicitly nonpersonalized mock responses by default.
+- Opt-in OpenAI structured-output adapter; now validates complete output, three distinct nonblank bounded candidates and nested response shape. Invalid/incomplete output, refusals, HTTP failures and transport errors fail safely with HTTP 502. Missing/unknown provider configuration returns HTTP 503.
+- Provider requests have a 25-second client timeout, 2048 completion-token cap and no automatic retries. These are engineering bounds, not a production budget, rate limiter or quality guarantee.
+- Fixed mock rewrite crashes for punctuation-only and maximum-length drafts. Long mock drafts are truncated to fit candidate limits; mock output cannot establish intent fidelity.
+- SwiftUI harness retains generate/rewrite/copy flows. Shared Foundation networking supports injected ephemeral URLSession, configurable endpoint, safe errors, timeout/cancellation and response validation. A shared composer model invalidates/cancels on input/mode changes, rejects stale responses/errors, preserves newer loading, resolves copy text from current state and suppresses unsafe unknown errors. Client length checks use Unicode scalars to match existing API bounds. Native observation/view wiring is implemented but not Xcode-compiled; no significant UI redesign.
+- Dependency-free Swift Package compiles the same models/client/configuration as the iOS app, with Python-verified synthetic wire fixtures and an opt-in real URLSession integration check against the mock backend.
+- Signed official Swift 6.1.3 toolchain installed for Linux shared-source validation, with repeatable signature-verifying installation and writable-cache test scripts.
+- Deterministic aggregate style extraction exists with synthetic tests. It remains disconnected from generation and persistence.
+- Offline evaluation CLI runs eight invented generate/rewrite cases in `synthetic-v2`: four preserved baseline cases and four public untuned injection/contextual-intent stress cases. Split, provenance and example-overlap invariants are tested. Reports record contracts/provenance/latency and support blinded review; current dataset hashes intentionally reject old v1 reports. Quality remains unmeasured; no superiority claim.
+- Separate live-integration runner supports the owner's one-time $2 `gpt-5.4-mini` authorization, up to two unchanged synthetic baseline requests, evidence/key/availability prerequisites, durable reservations before inference, usage accounting and explicit unrun cases. It stops on unknown outcomes and never refunds or retries. Same-day official evidence is now reviewed; credentials/account availability still block paid execution.
+- Backend tests isolate provider environment variables and block live HTTP transports. Existing GitHub workflow explicitly selects mock mode.
+- Root `AGENTS.md` now contains the owner's permanent Autonomous Engineering Operating Protocol, linked to `ENGINEERING_PROTOCOL.md` and durable `NEXT_TASKS.md`. Work proceeds on feature branches with validated commits and PR review; consequential uncertainty prompts questions throughout development.
+- Resumed offline implementation: completed review validation and preference summaries with blinded or validated-key unblinded counts, missing/unrated/excluded outcomes distinct, and no quality claims. Fixed shared review/source references and ordinary paired-artifact write failures, with regression coverage written before fixes.
 
-## Additional personalization foundation (October 15, 2026)
-- Added `backend/app/style_profile.py`: deterministic aggregate style signals from explicitly supplied user-authored examples (length, capitalization, emoji/question/exclamation rates, common markers).
-- Added `backend/tests/test_style_profile.py` with 5 passing local synthetic-data tests (`python -m pytest -q tests/test_style_profile.py`).
-- This module does not persist messages, perform imports, or personalize generation yet. It must only be integrated into real data flows after consent and deletion requirements are designed.
-- Prior full-backend test result (9 passed) was not rerun as part of this update; GitHub CI remains to be checked.
+## Verification in this cloud instance
+
+- Baseline: 14 backend tests passed on Python 3.12.14 when run from `backend`, as required by `AGENTS.md`. An initial invocation from the repository root failed imports; this was a working-directory error, not a product defect.
+- Latest backend: **224 passed**, no failures or skips, on Python 3.12.14, including 27 live-runner control tests, 13 dataset invariant tests and five cross-language distinctness tests. One nonfatal Starlette TestClient/httpx deprecation warning. Dependencies did not change. This run also inherited `PROOFREAD_PROVIDER=openai`, proving test isolation still forces offline mocks.
+- Shared Swift networking/composer: **31 passed, no skips or failures**, including actual local URLSession generate/rewrite/HTTP 422. Behavioral tests failed before fixes for stale output/loading/copy, unknown-error privacy, Unicode input bounds, and cancellation/model release before task execution. Swift 6.1.3 on Linux compiles shared state transitions without the Apple Observation adapter. The package's Apple minimum is macOS 14; app minimum remains iOS 17. SwiftUI/Observation wiring, Xcode and simulator validation remain unrun.
+- Swift installer signature/fingerprint verification and repeat execution succeeded without a second download. Both helper scripts passed shell syntax checks.
+- Fresh FastAPI HTTP checks passed for health, generate, rewrite, punctuation-only rewrite, 10,000-character rewrite and missing-draft HTTP 422.
+- Evaluation CLI run/compare commands executed with synthetic data: four contract passes and four blind-review cases. Reports and case counts were checked. These commands do not run live inference or establish quality.
+- Actual offline CLI run → compare → invented ratings → summarize passed for four cases with validated unblinding. Ratings in this smoke test are fabricated acceptance-test data, not human quality evidence. Existing output preservation, changed material rejection and paired-write rollback have targeted tests.
+- Updated synthetic-v2 CLI smoke passed with eight mock contract outcomes and partial invented ratings: four baseline votes/four missing stress ratings per dimension. Both live-test input requests are pinned unchanged. Backend distinctness now collapses internal whitespace before casefolding, matching Swift; spaces/tab/newline/NBSP variants failed four regressions before the fix.
+- Canonical one-time approval ledger initialized once at `/workspace/.proofread/live-budget.json`, outside Git: available, zero calls reserved, **$0 paid expenditure**. Actual default live CLI invocation was blocked without changing that ledger. Both credential variable names remain unset. The ledger is bound to this runtime and cannot authorize a copied/rebooted campaign; cross-instance spending requires stronger coordination, not reinitialization.
+- GitHub API access recovered after earlier HTTP 403 responses: original `main` CI is verified successful, as are prior PR-head checks at `ca0e2c1`. New branch commits require their own checks. Official OpenAI model/pricing/reference documentation also recovered: structured output/default-tier support and billing bounds were reviewed October 15. The approved global/default-tier two-call reservation is $0.604608; see `AI_EVALUATION.md`. No authenticated availability or live inference is implied.
+- Feature branch `codex/autonomous-engineering-protocol` is pushed and [draft PR #1](https://github.com/idanshaviner/Proofread/pull/1) is open. Initial branch-push backend CI at `1c760ee` passed; consult the PR for checks on subsequent documentation commits. No merge or release occurred. Root instructions are automatically discoverable on this branch; default-branch tasks receive them after merge.
+
+## Outstanding gates
+
+- **Live model behavior:** the owner approved `gpt-5.4-mini` with a one-time $2 maximum. Secure credentials and authenticated account availability remain unavailable; official evidence was reviewed October 15 and must be refreshed on later dates. The bounded runner has offline control tests; no paid calls ran and the original ledger remains unused.
+- **Native app:** no Xcode, simulator, device, signing or SwiftUI compilation ran here. Run XcodeGen and actual Xcode build/acceptance on macOS. Linux Foundation tests cannot satisfy this gate.
+- **Privacy and identity:** authentication, consent/deletion flows, persistence and tenant isolation remain unimplemented. Do not store or import private conversations. Sign in with Apple and database choices remain provisional.
+- **Next identity decision:** `AUTHENTICATION_PROPOSAL.md` describes a backend-only Apple token-verifier foundation, with sessions, UI, persistence and private data explicitly deferred. Owner approval was requested while independent client/evaluation work continued; it is not yet a recorded approval.
+- **Personalization:** no public personalized-generation API, contextual retrieval, feedback learning or measured authenticity improvement. Local aggregate extraction and evaluation infrastructure are foundations only.
+- **Product direction:** finalized exports will arrive in `docs/source/` from the owner's ChatGPT Project. Continue compatible offline work while awaiting them; reconcile approved workflows before consequential UX, scope, architecture, privacy or release changes. See `OPEN_REQUIREMENTS.md` for the concise material requirements list.
+
+## Next bounded milestones
+
+1. Execute Xcode app build and simulator generate/rewrite acceptance on macOS using the tested shared client.
+2. Run a bounded, explicitly authorized synthetic live-model experiment and record actual model/configuration, cost and failures.
+3. Reconcile finalized product sources, then implement approved authentication/consent/deletion and isolation before adding private data flows.
+4. Add authorized personalization and contextual retrieval incrementally, using blinded evaluation against generic AI before claiming a quality gain.
+
+## Reusable environment configuration
+
+Saved the tested Python/Swift installation script and startup instructions, mock-provider/model suggestions, a secure `PROOFREAD_OPENAI_API_KEY` requirement scoped to `api.openai.com`, and network additions for that API, official OpenAI documentation/pricing and GitHub Actions status reads. The platform reserves `OPENAI_` variable names, so the backend supports the `PROOFREAD_` alias while preserving legacy local configuration.
+
+Draft persistence is confirmed. These changes have not been published or validated in a new task. Enter the key securely and review/save/publish through environment settings when appropriate; this never authorizes automatic paid calls or ledger reset. Startup and installation remain offline with respect to inference.

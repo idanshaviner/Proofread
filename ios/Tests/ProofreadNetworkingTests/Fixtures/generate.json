@@ -1,0 +1,21 @@
+{
+  "candidates": [
+    {
+      "text": "haha yeah i'm down, when are you free?",
+      "label": "Natural",
+      "id": 1
+    },
+    {
+      "text": "we should, you free this weekend?",
+      "label": "Direct",
+      "id": 2
+    },
+    {
+      "text": "took you long enough to say that lol",
+      "label": "Playful",
+      "id": 3
+    }
+  ],
+  "provider": "deterministic-mock",
+  "personalized": false
+}
