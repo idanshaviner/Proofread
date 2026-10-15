@@ -1,9 +1,14 @@
 """Provider adapters. No user messages are persisted or logged."""
+import asyncio
 import json
 import os
 from typing import Literal, Protocol
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+_REQUEST_TIMEOUT_SECONDS = 25.0
+_MAX_RESPONSE_BYTES = 262144
+
 
 class _CandidateContent(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, str_strip_whitespace=True)
@@ -146,10 +151,24 @@ class OpenAIProvider:
     async def _generate(self, request, *, require_metadata):
         payload = self.build_payload(request)
         try:
-            async with httpx.AsyncClient(timeout=25.0, transport=self.transport) as client:
-                response = await client.post("https://api.openai.com/v1/chat/completions", json=payload, headers={"Authorization": f"Bearer {self.key}"})
-                response.raise_for_status()
-                completion = _Completion.model_validate(response.json())
+            async with httpx.AsyncClient(timeout=_REQUEST_TIMEOUT_SECONDS, transport=self.transport) as client:
+                # Bound elapsed network time as well as individual HTTPX phases.
+                async with asyncio.timeout(_REQUEST_TIMEOUT_SECONDS):
+                    async with client.stream(
+                        "POST", "https://api.openai.com/v1/chat/completions",
+                        json=payload, headers={"Authorization": f"Bearer {self.key}",
+                                                "Accept-Encoding": "identity"},
+                    ) as response:
+                        response.raise_for_status()
+                        # Refuse compression to bound memory before decompression.
+                        if response.headers.get("content-encoding", "identity").lower() != "identity":
+                            raise ProviderFailure("AI generation is currently unavailable")
+                        body = bytearray()
+                        async for chunk in response.aiter_bytes():
+                            if len(body) + len(chunk) > _MAX_RESPONSE_BYTES:
+                                raise ProviderFailure("AI generation is currently unavailable")
+                            body.extend(chunk)
+                completion = _Completion.model_validate_json(body)
                 choice = completion.choices[0]
                 if choice.message.refusal:
                     raise ProviderFailure("Model declined to generate suggestions")
@@ -175,7 +194,7 @@ class OpenAIProvider:
                                               model=completion.model,
                                               service_tier=completion.service_tier)
                 return answer, metadata
-        except (httpx.HTTPError, ValueError, KeyError, TypeError, IndexError) as exc:
+        except (httpx.HTTPError, TimeoutError, ValueError, KeyError, TypeError, IndexError) as exc:
             raise ProviderFailure("AI generation is currently unavailable") from exc
 
 def build_provider() -> ReplyProvider:

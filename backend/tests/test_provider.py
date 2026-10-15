@@ -251,3 +251,69 @@ async def test_metadata_omits_malformed_request_ids(request_id):
         lambda _: httpx.Response(200, json=body, headers={"x-request-id": request_id.encode("utf-8")})))
     _, metadata = await provider.generate_with_metadata(REQUEST)
     assert metadata.request_id is None
+
+
+@pytest.mark.asyncio
+async def test_oversized_stream_stops_early_and_closes_response():
+    class OversizedStream(httpx.AsyncByteStream):
+        consumed = 0
+        closed = False
+
+        async def __aiter__(self):
+            for _ in range(100):
+                self.consumed += 1
+                yield b"x" * 65536
+
+        async def aclose(self):
+            self.closed = True
+
+    stream = OversizedStream()
+    model = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(
+        lambda _: httpx.Response(200, stream=stream)))
+    with pytest.raises(ProviderFailure, match="AI generation is currently unavailable"):
+        await model.generate(REQUEST)
+    assert stream.consumed < 100
+    assert stream.closed
+
+
+@pytest.mark.asyncio
+async def test_total_deadline_bounds_slow_response(monkeypatch):
+    import asyncio
+    from app import provider
+    monkeypatch.setattr(provider, "_REQUEST_TIMEOUT_SECONDS", 0.01, raising=False)
+
+    async def slow_handler(request):
+        await asyncio.sleep(1)
+        return httpx.Response(200, json=completion())
+
+    model = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(slow_handler))
+    with pytest.raises(ProviderFailure, match="AI generation is currently unavailable"):
+        await model.generate(REQUEST)
+
+
+@pytest.mark.asyncio
+async def test_response_limit_accepts_exact_boundary_and_rejects_one_extra_byte():
+    from app.provider import _MAX_RESPONSE_BYTES
+    body = json.dumps(completion()).encode()
+    body += b" " * (_MAX_RESPONSE_BYTES - len(body))
+    for extra, accepted in ((b"", True), (b" ", False)):
+        model = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(
+            lambda _, data=body + extra: httpx.Response(200, content=data)))
+        if accepted:
+            assert len((await model.generate(REQUEST)).candidates) == 3
+        else:
+            with pytest.raises(ProviderFailure):
+                await model.generate(REQUEST)
+
+
+@pytest.mark.asyncio
+async def test_compressed_response_is_rejected_before_reading_stream():
+    class UnreadStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            pytest.fail("Compressed response must not be decoded")
+            yield b""
+
+    model = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(
+        lambda _: httpx.Response(200, headers={"content-encoding": "gzip"}, stream=UnreadStream())))
+    with pytest.raises(ProviderFailure):
+        await model.generate(REQUEST)

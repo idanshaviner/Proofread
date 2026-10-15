@@ -44,3 +44,9 @@ routine-engineering clarification is required. Signing is needed for device/rele
 work, not the initial simulator build. Private-data policy/session design still
 requires a concrete reviewed proposal before implementation. Latest local suite:
 331 backend tests after safe offline CLI output-error handling.
+
+Provider follow-up: total network deadline and streamed response-size protections
+are implemented with 335 passing backend tests. During the already approved live
+integration check, confirm the upstream honors identity content encoding; do not
+claim vendor acceptance from offline tests. Review latest pushed CI and preserve
+all existing paid-test, native-app and private-data gates.

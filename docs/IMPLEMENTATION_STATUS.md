@@ -76,3 +76,14 @@ The follow-up also normalizes offline `run` output failures to an actionable CLI
 usage error (exit 2), without leaking underlying storage diagnostics. Regression
 reproduced first; full backend suite: 331 passed, one existing warning. PR #3's
 preceding commit passed remote CI; this subsequent commit requires its own CI run.
+
+### Provider response resource bounds
+
+OpenAI response fetching now has a 25-second total network deadline, a 256 KiB
+streamed body limit and identity-only content encoding (requested and checked
+before body decoding). Oversized replies stop early and close the response.
+Timeouts remain safe provider failures; there are no retries. Existing schema and
+accounting validation still run after fetching. Two defects were reproduced before
+implementation; boundary and compression regressions were added. Full backend:
+335 passed, one existing deprecation warning. All requests used offline transports;
+real provider compatibility remains gated on credentials and the controlled test.
