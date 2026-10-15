@@ -1,0 +1,30 @@
+{
+  "version": "synthetic-v1",
+  "provenance": "Entirely invented scenarios and writing examples; no private conversations.",
+  "cases": [
+    {
+      "id": "generate-friend-plan",
+      "request": {"mode": "generate", "incoming_message": "Want to get lunch on Saturday?", "relationship": "friend", "goal": "Accept and ask what time."},
+      "style_examples": ["haha yes i'm in", "what time works for you?", "sounds good 😄"],
+      "review_guidance": "Accept the invitation and ask about timing without inventing commitments."
+    },
+    {
+      "id": "generate-work-boundary",
+      "request": {"mode": "generate", "incoming_message": "Can you review the proposal tonight?", "relationship": "coworker", "goal": "Politely decline tonight and offer tomorrow morning."},
+      "style_examples": ["Thanks for checking. Tomorrow morning works for me.", "I can take a look after our meeting."],
+      "review_guidance": "Keep the boundary tonight and explicitly offer tomorrow morning."
+    },
+    {
+      "id": "rewrite-friend-decline",
+      "request": {"mode": "rewrite", "incoming_message": "Movie night at mine?", "relationship": "friend", "goal": "Decline warmly without inventing a reason.", "draft": "can't make it tonight but have fun"},
+      "style_examples": ["ah can't this time, have fun!", "haha next time for sure"],
+      "review_guidance": "Preserve the decline and warmth; do not add an excuse or promise."
+    },
+    {
+      "id": "rewrite-work-clarify",
+      "request": {"mode": "rewrite", "incoming_message": "Could you send the updated numbers?", "relationship": "coworker", "goal": "Ask which reporting period they need, clearly and politely.", "draft": "Which reporting period do you need?"},
+      "style_examples": ["Could you clarify the date range?", "Thanks. I will check the report."],
+      "review_guidance": "Preserve the clarification request without inventing numbers or deadlines."
+    }
+  ]
+}
