@@ -26,6 +26,6 @@ The full owner-supplied protocol additionally makes protected-branch merges expl
 
 Composer state uses the standard iOS 17 Observation adapter around shared Foundation logic, preserving the existing form/navigation. Linux tests omit that adapter because the Debian toolchain's Observation library fails linking; no runtime/security bypass was used. The Swift package requires macOS 14 for Observation. Actual Apple compilation remains a gate, not an inferred success.
 
-`AUTHENTICATION_PROPOSAL.md` is a concrete proposal for the next identity foundation. Approval is pending; token-verification implementation, sessions and private-data handling are not authorized by the proposal itself.
+The owner explicitly approved the backend-only Apple verifier foundation in `AUTHENTICATION_PROPOSAL.md` on October 15, 2026. Approval covers internal signature/claim verification and synthetic tests only. Sessions, sign-in UI, storage, private data, production authentication and deployment remain deferred. Expected audience comes from trusted backend configuration, and expected nonce means the exact expected token claim; caller-side hashing/challenge issuance and replay protection are separate integration work.
 
 These implementation choices do not authorize deployments, recurring expenses, production releases, private-data retention policies or finalized designs.

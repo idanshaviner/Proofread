@@ -37,3 +37,19 @@ These tests compile the application's shared Foundation sources and verify netwo
 - Use `git diff --check` and review the final diff before committing. Documentation-only changes require factual/link review rather than invented test coverage.
 
 AI experiments and human-review workflows are documented in `AI_EVALUATION.md`; paid inference is never a default test gate.
+
+## Authentication foundation and dependencies
+
+Run `.venv/bin/python -m pytest -q tests/test_apple_identity.py` from `backend` for synthetic signed-token/key-rotation/resource-bound tests. No real Apple tokens or key fetches are used. See `AUTHENTICATION.md` for library boundaries; unit success does not establish Apple sign-in or session security.
+
+After dependency changes, run `.venv/bin/python -m pip check` and audit the installed pinned package set. The October 15 audit used an isolated pip-audit tool with writable workspace caches and no project-tool dependency:
+
+```sh
+.venv/bin/python -m pip freeze > /tmp/proofread-python-freeze.txt
+UV_TOOL_DIR=/workspace/.cache/uv/tools UV_TOOL_BIN_DIR=/workspace/.cache/uv/bin \
+  uvx --cache-dir /workspace/.cache/uv --from pip-audit pip-audit \
+  --cache-dir /workspace/.cache/pip-audit --disable-pip --no-deps \
+  --progress-spinner off -r /tmp/proofread-python-freeze.txt
+```
+
+This requires advisory-service network access; report skipped/unavailable checks honestly. No known findings is not proof that a dependency or application is secure. Preserve TLS and artifact verification, and rerun affected regressions after dependency corrections.
