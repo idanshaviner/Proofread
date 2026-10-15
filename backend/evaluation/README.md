@@ -57,3 +57,67 @@ may be recognizable, so mock comparisons are workflow rehearsals only. Establish
 a held-out dataset, agreed rubric, multiple independent raters, and uncertainty
 reporting before drawing product conclusions. Real-user authenticity evaluation
 requires consent and the still-unimplemented privacy controls.
+
+## One-time live integration scaffold (blocked by default)
+
+`python -m evaluation.live` is separate from the offline CLI. It is limited to the
+owner's October 15, 2026 approval: one campaign, up to two synthetic calls (one
+generate, one rewrite), model `gpt-5.4-mini`, maximum $2 total, output cap 512 tokens, and the
+default service tier. It does not assess personalization. **No real pricing or
+compatibility artifact is committed, and no live call has been verified.**
+
+Execution requires all of the following:
+
+- Explicit `--execute` and an exclusive writable `--output` path reserved before
+  any requests. Existing output is never overwritten. Blocked results are saved
+  as a safe status; raw HTTP responses, keys, and errors are omitted.
+- Secure environment key `PROOFREAD_OPENAI_API_KEY` (legacy `OPENAI_API_KEY` also
+  accepted). Configure values through environment settings, never CLI or files.
+- `--reviewed-spec PATH`: a same-day engineer-reviewed official evidence artifact
+  satisfying `VerifiedModelSpec` in `live.py`. It must name the approved model,
+  official source URLs, reviewer/date, full context maximum, maximum input/output
+  prices per million across **all** applicable pricing/input-length tiers, verified
+  response model IDs/snapshots, structured-schema support, default-tier support,
+  and proof that `max_completion_tokens` caps **all billed output**, including
+  reasoning. Rates must not assume caching, batch discounts or low-length tiers.
+  Artifact fields are attestations, not automatic verification of source content.
+  Missing/unknown facts block execution. Test fixtures use invented numbers and
+  are never a real specification.
+- The canonical ledger `/workspace/.proofread/live-budget.json` provisioned once
+  by the campaign owner using `initialize_approval_ledger()`. Installation,
+  startup and CLI **never** initialize, reset or replace a missing ledger. Do not
+  recreate, fork or copy it to mint another allowance. No reset/init/path-override
+  CLI exists. Missing, unreadable, reserved, changed or copied-instance ledgers
+  block paid execution.
+- A nonbillable authenticated model-availability GET succeeds. This establishes
+  access only; compatibility still requires the reviewed evidence.
+
+The reservation per call is `(full_context_max * max_input_price + 512 *
+max_output_price) / 1_000_000`. The full-context bound includes input framing and
+schema tokens without assuming an unverified tokenizer. Output is additionally
+reserved even if it shares the context window. If **both** conservative
+reservations exceed $2, the run is blocked; small prompt size never relaxes the
+bound. Unknown pricing or output-cap semantics must not be filled with guesses.
+
+Before the first paid POST, both calls are durably reserved together under a
+local file lock. Reservations are never refunded after failures, crashes, missing
+usage or uncertain outcomes. No automatic retries occur. Validated usage, measured
+latency, contract/distinctness results, responses and safe failure statuses are
+preserved in the ledger after each result before another call. Unexpected usage
+beyond bounds, an unverified response model, or nondefault/missing returned service
+tier stops the second call. Any provider failure or unknown accounting also stops
+the run, since malformed output may hide model/tier evidence. Remaining cases are
+explicitly marked unrun; reservations are retained. Contextual relevance remains
+human review required.
+
+The ledger binds to hostname and boot identity. Linux execution and lock behavior
+are tested here; the macOS `kern.bootsessionuuid` path is covered with a mock,
+**not executed on macOS**. Reboot/runtime replacement blocks the existing campaign
+rather than issuing fresh credit. Local file locks cannot coordinate spending
+across machines. Cross-instance concurrent execution requires a shared spending
+coordinator or hard service-side cap and is outside this runner's authorization.
+The ledger is a cooperative local guard, not a tamper-proof billing system.
+
+Offline validation: `.venv/bin/python -m pytest -q tests/test_live_evaluation.py`.
+All test traffic uses `httpx.MockTransport`; tests do not initialize the canonical
+ledger or contact OpenAI.
