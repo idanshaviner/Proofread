@@ -1,0 +1,19 @@
+name: Proofread
+options:
+  bundleIdPrefix: com.proofreadapp
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    IPHONEOS_DEPLOYMENT_TARGET: '17.0'
+targets:
+  Proofread:
+    type: application
+    platform: iOS
+    sources:
+      - path: Proofread
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.proofreadapp.prototype
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking: YES
