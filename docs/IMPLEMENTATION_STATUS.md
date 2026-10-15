@@ -23,3 +23,9 @@
 2. Validate hosted model adapter in a limited authorized live integration test.
 3. Reconcile final project PRD, SPEC, research and roadmap.
 4. Design consent, secure identity and deletion before storing user histories.
+
+## Additional personalization foundation (October 15, 2026)
+- Added `backend/app/style_profile.py`: deterministic aggregate style signals from explicitly supplied user-authored examples (length, capitalization, emoji/question/exclamation rates, common markers).
+- Added `backend/tests/test_style_profile.py` with 5 passing local synthetic-data tests (`python -m pytest -q tests/test_style_profile.py`).
+- This module does not persist messages, perform imports, or personalize generation yet. It must only be integrated into real data flows after consent and deletion requirements are designed.
+- Prior full-backend test result (9 passed) was not rerun as part of this update; GitHub CI remains to be checked.
