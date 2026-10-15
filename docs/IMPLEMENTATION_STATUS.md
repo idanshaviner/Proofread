@@ -61,3 +61,13 @@
 Saved the tested Python/Swift installation script and startup instructions, mock-provider/model suggestions, a secure `PROOFREAD_OPENAI_API_KEY` requirement scoped to `api.openai.com`, and network additions for that API, official OpenAI documentation/pricing and GitHub Actions status reads. The platform reserves `OPENAI_` variable names, so the backend supports the `PROOFREAD_` alias while preserving legacy local configuration.
 
 Draft persistence is confirmed. These changes have not been published or validated in a new task. Enter the key securely and review/save/publish through environment settings when appropriate; this never authorizes automatic paid calls or ledger reset. Startup and installation remain offline with respect to inference.
+
+### Evaluation output follow-up
+
+Single offline reports and review summaries now share the paired artifact writer's
+UTF-8, exclusive 0600 creation, pre-serialization, flush/fsync and identity-checked
+rollback safeguards. Existing outputs are preserved. Serialization and durability
+failures were reproduced before the fix; the full backend suite passes 330 tests
+(one existing Starlette deprecation warning). This is ordinary-failure protection,
+not crash-atomic publication or protection against adversarial directory mutation.
+No AI calls, authentication scope changes or native iOS checks were involved.

@@ -8,11 +8,7 @@ from app.provider import MockProvider
 from .runner import blind_comparison, evaluate
 
 
-def write_json(path, value):
-    # Avoid overwriting an existing evaluation or review artifact.
-    with Path(path).open("x") as handle:
-        json.dump(value, handle, ensure_ascii=False, indent=2)
-        handle.write("\n")
+from .artifacts import write_json
 
 
 def main():

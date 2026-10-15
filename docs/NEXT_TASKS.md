@@ -31,3 +31,9 @@ Use with `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and `OPEN_REQUIREMENTS.md`. 
 - Composer stale request/copy/error cancellation and API-aligned Unicode input bounds; cancellation before generator execution prevents obsolete work. Shared state is tested; Apple UI adapter remains uncompiled.
 - Backend/client whitespace distinctness parity, and official model/pricing/output-cap research without paid calls.
 - Approved internal Apple verifier with 103 synthetic tests, independent security review and dependency audit. Vendor compatibility/replay/session/user-data gates remain explicit.
+
+Follow-up checkpoint: both existing PRs had successful checks and no review comments
+on inspection. Single-report artifact reliability is now covered alongside paired
+writes (330 backend tests). Review the stacked follow-up PR before integration;
+protected-branch merges remain gated. Continue with new review feedback or the
+external acceptance prerequisites above when available.

@@ -53,3 +53,8 @@ UV_TOOL_DIR=/workspace/.cache/uv/tools UV_TOOL_BIN_DIR=/workspace/.cache/uv/bin 
 ```
 
 This requires advisory-service network access; report skipped/unavailable checks honestly. No known findings is not proof that a dependency or application is secure. Preserve TLS and artifact verification, and rerun affected regressions after dependency corrections.
+
+Single evaluation output regression coverage lives in `tests/test_artifacts.py`:
+serialization failure leaves no partial report, durability failure rolls back owned
+output, UTF-8 JSON is private (0600), and existing reports cannot be overwritten.
+These checks share the existing paired-writer regression suite.

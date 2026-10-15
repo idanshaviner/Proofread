@@ -140,3 +140,36 @@ def test_racing_second_creator_is_preserved(tmp_path, monkeypatch):
         write_review_pair(review, REVIEW, key, KEY)
     assert not review.exists()
     assert key.read_text(encoding="utf-8") == "another writer"
+
+
+def test_single_report_serialization_failure_leaves_no_partial(tmp_path):
+    from evaluation.__main__ import write_json
+    output = tmp_path / "report.json"
+    with pytest.raises(TypeError):
+        write_json(output, {"cases": [REVIEW, object()]})
+    assert not output.exists()
+
+
+def test_single_report_is_private_utf8_and_preserves_existing(tmp_path):
+    from evaluation.__main__ import write_json
+    output = tmp_path / "report.json"
+    write_json(output, REVIEW)
+    assert json.loads(output.read_text(encoding="utf-8")) == REVIEW
+    assert output.stat().st_mode & 0o777 == 0o600
+    with pytest.raises(FileExistsError):
+        write_json(output, KEY)
+    assert json.loads(output.read_text(encoding="utf-8")) == REVIEW
+
+
+def test_single_report_durability_failure_cleans_owned_output(tmp_path, monkeypatch):
+    from evaluation.__main__ import write_json
+    from evaluation import artifacts
+    output = tmp_path / "report.json"
+
+    def fail(descriptor):
+        raise OSError("synthetic durability failure")
+
+    monkeypatch.setattr(artifacts.os, "fsync", fail)
+    with pytest.raises(OSError, match="durability failure"):
+        write_json(output, REVIEW)
+    assert not output.exists()
