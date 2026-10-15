@@ -13,7 +13,7 @@ Use with `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and `OPEN_REQUIREMENTS.md`. 
 - **Small live AI experiment:** requires secure key and current reviewed model/pricing/context/output-cap evidence, plus the intact one-time campaign ledger. Keep the mock default. Existing approval is one-time, not renewed by another task. No paid calls until every prerequisite is established.
 - **Private history, personalization and retrieval:** reconcile approved identity/consent/deletion/isolation requirements before private data flows. Local synthetic research may proceed without collecting private conversations.
 - **Consequential UX/product work:** finalized originals will arrive in `docs/source/`; ask only for decisions that materially block the selected implementation.
-- **Remote checks:** GitHub API access now works; original `main` backend CI is verified successful. Inspect the feature-branch PR checks separately; do not confuse prior CI with validation of new commits.
+- **Remote review:** [draft PR #1](https://github.com/idanshaviner/Proofread/pull/1) contains the pushed feature branch and root operating instructions. Inspect its current checks and review before merge; default-branch tasks receive the new `AGENTS.md` after merge. No merge/release authorization is inferred.
 
 ## Completed foundation
 

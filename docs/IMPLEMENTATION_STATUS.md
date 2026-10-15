@@ -33,6 +33,7 @@
 - Actual offline CLI run → compare → invented ratings → summarize passed for four cases with validated unblinding. Ratings in this smoke test are fabricated acceptance-test data, not human quality evidence. Existing output preservation, changed material rejection and paired-write rollback have targeted tests.
 - Canonical one-time approval ledger initialized once at `/workspace/.proofread/live-budget.json`, outside Git: available, zero calls reserved, **$0 paid expenditure**. Actual default live CLI invocation was blocked without changing that ledger. Both credential variable names remain unset. The ledger is bound to this runtime and cannot authorize a copied/rebooted campaign; cross-instance spending requires stronger coordination, not reinitialization.
 - GitHub API access recovered after earlier HTTP 403 responses: the backend workflow for original `main` commit `15169a6` is verified successful. Feature-branch CI is a separate check. OpenAI documentation previously returned HTTP 403; current model-specific compatibility remains unverified.
+- Feature branch `codex/autonomous-engineering-protocol` is pushed and [draft PR #1](https://github.com/idanshaviner/Proofread/pull/1) is open. Initial branch-push backend CI at `1c760ee` passed; consult the PR for checks on subsequent documentation commits. No merge or release occurred. Root instructions are automatically discoverable on this branch; default-branch tasks receive them after merge.
 
 ## Outstanding gates
 
