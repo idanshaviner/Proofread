@@ -14,12 +14,18 @@ The finalized PRD, SPEC, architecture research and approved UI designs are not p
 ## External prerequisites
 
 - Reconcile the finalized source documents and approved workflows before consequential product, UX or architecture changes.
-- The owner approved `gpt-5.4-mini` and a one-time $2 maximum for synthetic generate/rewrite integration testing. Secure credentials, verified model compatibility/pricing and a reliable bound remain required before paid requests. See `OPEN_REQUIREMENTS.md`; never place keys in chat, Git or fixtures.
+- The owner approved `gpt-5.4-mini` and a one-time $2 maximum for synthetic generate/rewrite integration testing. Official model/pricing/cap evidence was reviewed October 15; same-day artifact is outside Git and gives a two-call conservative reservation of $0.604608. Secure credentials/account availability remain missing. Refresh evidence on later dates and preserve the original ledger. See `AI_EVALUATION.md`; never place keys in chat, Git or fixtures.
 - Run XcodeGen, an actual Xcode build, simulator/device acceptance and signing on macOS. Linux Foundation tests establish only shared client behavior.
-- Git read access works. GitHub API access initially returned HTTP 403 but now succeeds; the backend workflow for the original `main` commit `15169a6` completed successfully. New branch checks are separate. OpenAI model/pricing compatibility remains unverified.
+- Git read access works. GitHub API access initially returned HTTP 403 but now succeeds; the backend workflow for the original `main` commit `15169a6` completed successfully. New branch checks are separate. Official OpenAI documentation access also recovered; documentation compatibility is verified, but authenticated model availability/live inference is not.
 
 ## Permanent engineering workflow
 
 At the owner's direction, root `AGENTS.md` now establishes autonomous routine implementation, consequential clarification throughout development, explicit approval boundaries, intelligent tool/subagent use, TDD, security review, feature branches, validated commits/PRs and durable project memory. Detailed procedures live in `ENGINEERING_PROTOCOL.md`; actionable handoff work lives in `NEXT_TASKS.md`. This does not approve new spending, product changes or releases.
+
+The full owner-supplied protocol additionally makes protected-branch merges explicitly approval-bound and adds durable `TESTING.md`/`AI_EVALUATION.md` procedures. Existing cloud isolation remains sufficient; no worktree is needed for routine delegation.
+
+Composer state uses the standard iOS 17 Observation adapter around shared Foundation logic, preserving the existing form/navigation. Linux tests omit that adapter because the Debian toolchain's Observation library fails linking; no runtime/security bypass was used. The Swift package requires macOS 14 for Observation. Actual Apple compilation remains a gate, not an inferred success.
+
+`AUTHENTICATION_PROPOSAL.md` is a concrete proposal for the next identity foundation. Approval is pending; token-verification implementation, sessions and private-data handling are not authorized by the proposal itself.
 
 These implementation choices do not authorize deployments, recurring expenses, production releases, private-data retention policies or finalized designs.

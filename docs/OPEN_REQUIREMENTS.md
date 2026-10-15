@@ -5,7 +5,7 @@ The owner confirmed that finalized sources live in the ChatGPT Project **Proofre
 | Requirement | Implementation affected | Current boundary |
 | --- | --- | --- |
 | Finalized product sources and approved screens | Significant UX, acceptance criteria, scope and architecture changes | Existing documents remain provisional; preserve the current SwiftUI harness and backend contracts. |
-| Secure API key and verified model/pricing/capability evidence | Live generate/rewrite validation | Owner approved **gpt-5.4-mini**, **$2 USD total once**, synthetic data only. No key is configured. Verify model availability and structured-output support before paid calls; retain mock defaults. |
+| Secure API key and current model evidence | Live generate/rewrite validation | Owner approved **gpt-5.4-mini**, **$2 USD total once**, synthetic data only. Official compatibility/pricing evidence was reviewed October 15; refresh on later dates. No key is configured and authenticated availability remains unverified. Retain mock defaults. |
 | macOS/Xcode runner and signing access | Native app build, simulator/device acceptance | Linux shared-source networking tests pass; native app build remains unverified. |
 | Approved identity, consent, deletion, retention and isolation requirements | Private conversation imports, persistent profiles, retrieval and feedback | Do not collect or persist private conversations. No retention/privacy-policy decisions are inferred from provisional docs. |
 | Agreed evaluation rubric and consented/held-out data | Claims that personalization improves authentic communication | Offline synthetic contract tests and blind-review templates exist; semantic quality and superiority remain unmeasured. |

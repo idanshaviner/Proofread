@@ -26,7 +26,7 @@ The signed-toolchain installer and portable macOS instructions are in `ios/READM
 SWIFT_BIN=/workspace/toolchains/swift-6.1.3-RELEASE-debian12/usr/bin/swift PROOFREAD_TEST_API_BASE_URL=http://127.0.0.1:8000 bash ios/scripts/test-networking.sh
 ```
 
-These tests compile the application's shared Foundation sources and verify networking contracts. They do not compile SwiftUI/UIKit or run an iOS simulator. XcodeGen generation, actual Xcode build, signing and simulator/device acceptance must run on macOS and be recorded separately.
+These tests compile the application's shared Foundation sources and verify networking contracts and composer state. Linux excludes the Apple Observation adapter; its state transitions are shared, but observation/SwiftUI wiring is not compiled here. The Swift package requires macOS 14+ for that adapter; iOS remains 17+. XcodeGen generation, actual Xcode build, signing and simulator/device acceptance must run on macOS and be recorded separately.
 
 ## Quality gates and security review
 
