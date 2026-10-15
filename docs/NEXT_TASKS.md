@@ -4,7 +4,7 @@ Use with `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and `OPEN_REQUIREMENTS.md`. 
 
 ## Ready
 
-1. **Inspect current PR checks/review feedback and fix routine regressions.** Local integration is verified at 327 backend tests and 31 shared Swift tests; inspect each PR's latest pushed SHA. PR #1 has the protocol/composer/evaluation work; the Apple foundation is stacked separately. Keep protected-branch merge gated on owner approval.
+1. **Inspect current PR checks/review feedback and fix routine regressions.** Local integration is verified at 327 backend tests and 31 shared Swift tests; inspect each PR's latest pushed SHA. [PR #1](https://github.com/idanshaviner/Proofread/pull/1) has protocol/composer/evaluation work; [PR #2](https://github.com/idanshaviner/Proofread/pull/2) stacks the approved Apple foundation on it. After parent integration, adjust the child's base deliberately rather than rewriting shared history. Keep protected-branch merge gated on owner approval.
 
 ## Approved foundation — offline complete, vendor gate pending
 
