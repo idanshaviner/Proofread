@@ -2,7 +2,7 @@
 from typing import Literal
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, model_validator
-from .provider import ReplyResponse, ProviderFailure, build_provider
+from .provider import ReplyResponse, ProviderConfigurationError, ProviderFailure, build_provider
 
 app = FastAPI(title="Proofread Prototype", version="0.2.0")
 
@@ -29,5 +29,7 @@ def health():
 async def responses(request: ReplyRequest):
     try:
         return await build_provider().generate(request)
+    except ProviderConfigurationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ProviderFailure as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
