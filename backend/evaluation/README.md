@@ -58,6 +58,44 @@ a held-out dataset, agreed rubric, multiple independent raters, and uncertainty
 reporting before drawing product conclusions. Real-user authenticity evaluation
 requires consent and the still-unimplemented privacy controls.
 
+The compare command creates both paths exclusively before writing and rolls back
+its own files on ordinary creation/write failures, preserving observed user
+replacements. It cannot provide a crash-atomic transaction across two paths:
+abrupt interruption may leave partial artifacts. Validate a recovered pair
+against the original reports before use; retry with fresh paths rather than
+overwriting or blindly deleting existing files. Concurrent adversarial directory
+renames are outside this local helper's guarantees.
+
+## Validate and summarize human ratings
+
+After reviewers fill only each case's `preferences` (`A`, `B`, `tie`, or `null`)
+and optional text `notes`, validate and count the results against the original
+reports and the same comparison seed:
+
+```bash
+.venv/bin/python -m evaluation summarize /tmp/review.json /tmp/left.json /tmp/right.json \
+  --seed 42 --output /tmp/summary.json
+```
+
+This keeps counts blinded. Add `--key /tmp/review-key.json` to validate the exact
+regenerated key and include left/right system preference counts. An explicitly
+supplied null or malformed key is rejected. The command rejects altered prompts,
+candidate options, case identities/order, dataset, extra fields or invalid votes.
+It never overwrites an existing summary. Notes and candidate text are omitted
+from summaries; report/review digests support reproducibility, not signatures or
+proof of reviewer identity. A sheet containing identical candidate content cannot
+by itself distinguish otherwise identical source runs; the validated key anchors
+the supplied original report digests.
+
+Each dimension reports A/B/tie/missing counts. Empty comparisons, unrated reviews,
+partially rated reviews and complete ratings have distinct statuses. Excluded
+contract/provider failures are counted separately, not as losses. These are
+descriptive counts for one review sheet, not an agreed evaluation instrument,
+statistical significance, independent-rater consensus or evidence that personalized
+responses outperform generic AI. No inference or private conversation collection
+is needed. Prepared Python review/key objects are detached copies of source
+reports so editing artifacts cannot silently corrupt the originals.
+
 ## One-time live integration scaffold (blocked by default)
 
 `python -m evaluation.live` is separate from the offline CLI. It is limited to the

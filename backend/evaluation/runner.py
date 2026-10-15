@@ -1,5 +1,6 @@
 """Contract evidence and blinded human review, separate from semantic quality."""
 import hashlib
+from copy import deepcopy
 import json
 import random
 import time
@@ -169,4 +170,6 @@ def blind_comparison(left, right, seed=0):
             "notes": "",
         })
         key["cases"].append({"case_id": case["id"], **dict(zip(("A", "B"), order))})
-    return review, key
+    # Reviewers edit returned artifacts; those edits must not mutate the verified
+    # source reports (or vice versa) through shared candidate/system dictionaries.
+    return deepcopy(review), deepcopy(key)

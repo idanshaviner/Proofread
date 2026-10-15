@@ -26,11 +26,41 @@ def main():
     compare.add_argument("--output", required=True)
     compare.add_argument("--key", required=True)
     compare.add_argument("--seed", type=int, default=0)
+    summarize = commands.add_parser("summarize", help="Validate blinded ratings and count preferences")
+    summarize.add_argument("review")
+    summarize.add_argument("left")
+    summarize.add_argument("right")
+    summarize.add_argument("--key")
+    summarize.add_argument("--seed", type=int, default=0)
+    summarize.add_argument("--output", required=True)
     args = parser.parse_args()
     if args.command == "run":
         report = asyncio.run(evaluate(MockProvider()))
         write_json(args.output, report)
         return int(report["summary"]["contract_pass"] != report["summary"]["cases"])
+    if args.command == "summarize":
+        from .reviews import summarize_review
+
+        if Path(args.output).exists():
+            parser.error("Summary output already exists; overwrite is not supported")
+        try:
+            key = json.loads(Path(args.key).read_text()) if args.key else None
+            if args.key and not isinstance(key, dict):
+                raise ValueError("Invalid comparison key")
+            summary = summarize_review(
+                json.loads(Path(args.review).read_text()),
+                json.loads(Path(args.left).read_text()),
+                json.loads(Path(args.right).read_text()),
+                seed=args.seed,
+                key=key,
+            )
+        except (ValueError, OSError):
+            parser.error("Invalid review or source artifacts; check originals, ratings, seed and key")
+        try:
+            write_json(args.output, summary)
+        except OSError:
+            parser.error("Cannot create summary output; existing files are never overwritten")
+        return 0
     if Path(args.output).resolve() == Path(args.key).resolve():
         parser.error("Review and key must use separate paths")
     try:
@@ -38,11 +68,12 @@ def main():
                                      json.loads(Path(args.right).read_text()), args.seed)
     except (ValueError, OSError) as exc:
         parser.error(str(exc))
-    # Check both destinations first to avoid a partial pair for ordinary misuse.
-    if Path(args.output).exists() or Path(args.key).exists():
-        parser.error("Review/key destinations must not already exist")
-    write_json(args.output, review)
-    write_json(args.key, key)
+    from .artifacts import write_review_pair
+
+    try:
+        write_review_pair(args.output, review, args.key, key)
+    except (ValueError, OSError):
+        parser.error("Cannot create review/key pair; check distinct writable paths and existing files")
     return 0
 
 
