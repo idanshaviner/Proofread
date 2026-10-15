@@ -37,3 +37,10 @@ on inspection. Single-report artifact reliability is now covered alongside paire
 writes (330 backend tests). Review the stacked follow-up PR before integration;
 protected-branch merges remain gated. Continue with new review feedback or the
 external acceptance prerequisites above when available.
+
+Owner-input checkpoint: finalized exports, secure model key, macOS/Xcode runner,
+and applied Apple-domain network access remain the external prerequisites. No new
+routine-engineering clarification is required. Signing is needed for device/release
+work, not the initial simulator build. Private-data policy/session design still
+requires a concrete reviewed proposal before implementation. Latest local suite:
+331 backend tests after safe offline CLI output-error handling.

@@ -71,3 +71,8 @@ failures were reproduced before the fix; the full backend suite passes 330 tests
 (one existing Starlette deprecation warning). This is ordinary-failure protection,
 not crash-atomic publication or protection against adversarial directory mutation.
 No AI calls, authentication scope changes or native iOS checks were involved.
+
+The follow-up also normalizes offline `run` output failures to an actionable CLI
+usage error (exit 2), without leaking underlying storage diagnostics. Regression
+reproduced first; full backend suite: 331 passed, one existing warning. PR #3's
+preceding commit passed remote CI; this subsequent commit requires its own CI run.
