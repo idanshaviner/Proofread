@@ -61,3 +61,47 @@
 Saved the tested Python/Swift installation script and startup instructions, mock-provider/model suggestions, a secure `PROOFREAD_OPENAI_API_KEY` requirement scoped to `api.openai.com`, and network additions for that API, official OpenAI documentation/pricing and GitHub Actions status reads. The platform reserves `OPENAI_` variable names, so the backend supports the `PROOFREAD_` alias while preserving legacy local configuration.
 
 Draft persistence is confirmed. These changes have not been published or validated in a new task. Enter the key securely and review/save/publish through environment settings when appropriate; this never authorizes automatic paid calls or ledger reset. Startup and installation remain offline with respect to inference.
+
+### Evaluation output follow-up
+
+Single offline reports and review summaries now share the paired artifact writer's
+UTF-8, exclusive 0600 creation, pre-serialization, flush/fsync and identity-checked
+rollback safeguards. Existing outputs are preserved. Serialization and durability
+failures were reproduced before the fix; the full backend suite passes 330 tests
+(one existing Starlette deprecation warning). This is ordinary-failure protection,
+not crash-atomic publication or protection against adversarial directory mutation.
+No AI calls, authentication scope changes or native iOS checks were involved.
+
+The follow-up also normalizes offline `run` output failures to an actionable CLI
+usage error (exit 2), without leaking underlying storage diagnostics. Regression
+reproduced first; full backend suite: 331 passed, one existing warning. PR #3's
+preceding commit passed remote CI; this subsequent commit requires its own CI run.
+
+### Provider response resource bounds
+
+OpenAI response fetching now has a 25-second total network deadline, a 256 KiB
+streamed body limit and identity-only content encoding (requested and checked
+before body decoding). Oversized replies stop early and close the response.
+Timeouts remain safe provider failures; there are no retries. Existing schema and
+accounting validation still run after fetching. Two defects were reproduced before
+implementation; boundary and compression regressions were added. Full backend:
+335 passed, one existing deprecation warning. All requests used offline transports;
+real provider compatibility remains gated on credentials and the controlled test.
+
+### Owner prerequisite handoff
+
+PR #3's provider-limits commit passed remote backend CI. Existing cloud draft
+inspection confirms Apple domains are listed and the model secret has no saved
+binding; saving is not runtime application/publication. `OWNER_SETUP.md` provides
+secure configuration, finalized-export and local Mac instructions. The new Mac
+validation script has passed Bash syntax and Linux refusal checks; its unsigned
+Xcode build path remains unexecuted. No hosted macOS cost or paid inference was
+introduced. Routine engineering remains independent of these external actions.
+
+### Local browser preview
+
+`tools/preview/start.command` starts a loopback-only developer harness backed by
+existing API routes and forced mock mode. This is an explicitly requested testing
+artifact, not a new native design. HTTP smoke verified HTML/no-store, generate,
+rewrite and invalid-input responses. Browser rendering/clipboard and Mac launcher
+execution remain unverified. No AI or private storage is enabled.

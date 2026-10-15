@@ -31,3 +31,27 @@ Use with `IMPLEMENTATION_STATUS.md`, `DECISIONS.md` and `OPEN_REQUIREMENTS.md`. 
 - Composer stale request/copy/error cancellation and API-aligned Unicode input bounds; cancellation before generator execution prevents obsolete work. Shared state is tested; Apple UI adapter remains uncompiled.
 - Backend/client whitespace distinctness parity, and official model/pricing/output-cap research without paid calls.
 - Approved internal Apple verifier with 103 synthetic tests, independent security review and dependency audit. Vendor compatibility/replay/session/user-data gates remain explicit.
+
+Follow-up checkpoint: both existing PRs had successful checks and no review comments
+on inspection. Single-report artifact reliability is now covered alongside paired
+writes (330 backend tests). Review the stacked follow-up PR before integration;
+protected-branch merges remain gated. Continue with new review feedback or the
+external acceptance prerequisites above when available.
+
+Owner-input checkpoint: finalized exports, secure model key, macOS/Xcode runner,
+and applied Apple-domain network access remain the external prerequisites. No new
+routine-engineering clarification is required. Signing is needed for device/release
+work, not the initial simulator build. Private-data policy/session design still
+requires a concrete reviewed proposal before implementation. Latest local suite:
+331 backend tests after safe offline CLI output-error handling.
+
+Provider follow-up: total network deadline and streamed response-size protections
+are implemented with 335 passing backend tests. During the already approved live
+integration check, confirm the upstream honors identity content encoding; do not
+claim vendor acceptance from offline tests. Review latest pushed CI and preserve
+all existing paid-test, native-app and private-data gates.
+
+Owner actions are consolidated in `OWNER_SETUP.md`; do not repeatedly request them.
+After a reported settings change, recheck Apple reads/key presence before resuming
+gated validation. Run `ios/scripts/validate-macos.sh` on an actual Mac and preserve
+real build evidence; syntax/Linux checks alone are not native acceptance.

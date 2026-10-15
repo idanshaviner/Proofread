@@ -87,8 +87,9 @@ def test_cli_ignores_live_provider_environment_and_preserves_existing_output(tmp
     assert main() == 0
     assert json.loads(output.read_text())["system"]["mock"] is True
     original = output.read_bytes()
-    with pytest.raises(FileExistsError):
+    with pytest.raises(SystemExit) as exc:
         main()
+    assert exc.value.code == 2
     assert output.read_bytes() == original
 
 
@@ -142,3 +143,19 @@ def test_compare_cli_reports_malformed_input_without_writing_artifacts(tmp_path,
     assert exc.value.code == 2
     assert "Invalid evaluation report schema" in capsys.readouterr().err
     assert not output.exists() and not key.exists()
+
+
+def test_run_cli_sanitizes_output_failure(tmp_path, monkeypatch, capsys):
+    import evaluation.__main__ as cli
+
+    def fail(path, value):
+        raise OSError("sensitive internal path or storage diagnostic")
+
+    monkeypatch.setattr(cli, "write_json", fail)
+    monkeypatch.setattr(sys, "argv", ["evaluation", "run", "--output", str(tmp_path / "report.json")])
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 2
+    error = capsys.readouterr().err
+    assert "Cannot create report output" in error
+    assert "sensitive internal" not in error

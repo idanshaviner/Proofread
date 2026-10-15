@@ -36,3 +36,9 @@ This opt-in integration check exercises generate, rewrite and HTTP 422 handling;
 The shared `ComposerModel` owns input validation and request state. Required fields enforce the API's Unicode scalar limits (incoming message/draft 10,000, relationship 200, goal 500); generate omits and ignores the dormant draft. Editing any input or switching generate/rewrite invalidates the active request, cancels it, and clears suggestions, errors and the copied marker. Request identity prevents late success/error from replacing a newer result or changing its loading state even if a generator ignores cancellation. Copy actions resolve current candidate text; view disappearance cancels pending work. Continuation-driven tests exercise these transitions without real-time sleeps.
 
 On macOS 14+, `swift test` runs the same shared suite. The iOS 17 SwiftUI app uses standard Observation to observe the model; Linux compiles the identical Foundation state transitions without Apple's observation adapter. Apple observation and SwiftUI wiring have not been compiled here. XcodeGen generation and an actual Xcode app build plus simulator/device acceptance remain separate required checks; Linux cannot perform them.
+
+For a repeatable unsigned simulator build followed by shared tests on a Mac, run
+`bash ios/scripts/validate-macos.sh` from the repository root. The script checks
+prerequisites and fails on Linux; its actual Xcode path remains unverified here.
+See [owner setup](../docs/OWNER_SETUP.md) for cloud credentials/network settings,
+local simulator acceptance and finalized-document export instructions.

@@ -8,11 +8,7 @@ from app.provider import MockProvider
 from .runner import blind_comparison, evaluate
 
 
-def write_json(path, value):
-    # Avoid overwriting an existing evaluation or review artifact.
-    with Path(path).open("x") as handle:
-        json.dump(value, handle, ensure_ascii=False, indent=2)
-        handle.write("\n")
+from .artifacts import write_json
 
 
 def main():
@@ -36,7 +32,10 @@ def main():
     args = parser.parse_args()
     if args.command == "run":
         report = asyncio.run(evaluate(MockProvider()))
-        write_json(args.output, report)
+        try:
+            write_json(args.output, report)
+        except OSError:
+            parser.error("Cannot create report output; check writable paths and existing files")
         return int(report["summary"]["contract_pass"] != report["summary"]["cases"])
     if args.command == "summarize":
         from .reviews import summarize_review

@@ -1,4 +1,4 @@
-"""Local paired evaluation output with exclusive creation and checked rollback."""
+"""Local evaluation output with exclusive creation and checked rollback."""
 from contextlib import ExitStack
 import json
 import os
@@ -24,8 +24,21 @@ def write_review_pair(review_path: str | Path, review: Any,
     paths = (Path(review_path), Path(key_path))
     if paths[0].resolve() == paths[1].resolve():
         raise ValueError("Review and key must use separate paths")
+    _write_documents(paths, (review, key))
+
+
+def write_json(path: str | Path, value: Any) -> None:
+    """Write one private UTF-8 report using the paired writer's failure safeguards.
+
+    Serialization precedes creation; ordinary failures remove only owned output.
+    The same crash and concurrent-directory-mutation limitations apply.
+    """
+    _write_documents((Path(path),), (value,))
+
+
+def _write_documents(paths, values) -> None:
     payloads = tuple(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
-                     for value in (review, key))
+                     for value in values)
     created = []
     try:
         with ExitStack() as stack:
