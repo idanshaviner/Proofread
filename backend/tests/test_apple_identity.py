@@ -395,3 +395,33 @@ async def test_concurrent_unknown_kids_are_single_flight_while_fetch_is_pending(
     errors = await asyncio.gather(*tasks, return_exceptions=True)
     assert all(isinstance(error, AppleIdentityError) and error.code == "invalid_token" for error in errors)
     assert len(calls) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("encoding", ["gzip", "deflate", "br"])
+async def test_compressed_jwks_is_rejected_before_reading_or_decoding(token, encoding):
+    class UnreadStream(httpx.AsyncByteStream):
+        closed = False
+
+        async def __aiter__(self):
+            pytest.fail("Compressed JWKS must not be read or decoded")
+            yield b""
+
+        async def aclose(self):
+            self.closed = True
+
+    stream = UnreadStream()
+    verifier, calls = verifier_for([], handler=lambda _: httpx.Response(
+        200, headers={"content-encoding": encoding}, stream=stream))
+    with pytest.raises(AppleIdentityError) as exc:
+        await verifier.verify(token(), expected_nonce=NONCE)
+    assert exc.value.code == "verification_unavailable"
+    assert len(calls) == 1
+    assert stream.closed
+
+
+@pytest.mark.asyncio
+async def test_jwks_requests_identity_encoding(token, signing_keys):
+    verifier, calls = verifier_for([public_jwk(signing_keys[0])])
+    assert (await verifier.verify(token(), expected_nonce=NONCE)).subject
+    assert calls[0].headers["accept-encoding"] == "identity"

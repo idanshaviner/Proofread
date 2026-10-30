@@ -317,3 +317,23 @@ async def test_compressed_response_is_rejected_before_reading_stream():
         lambda _: httpx.Response(200, headers={"content-encoding": "gzip"}, stream=UnreadStream())))
     with pytest.raises(ProviderFailure):
         await model.generate(REQUEST)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["invalid_output", "transport"])
+async def test_failure_traceback_omits_upstream_message_content(failure):
+    import traceback
+
+    marker = "SYN_PRIVATE"
+
+    def handler(request):
+        if failure == "transport":
+            raise httpx.ReadTimeout(marker, request=request)
+        candidates = [{"text": marker * 300, "label": "Natural"}, *CANDIDATES[1:]]
+        return httpx.Response(200, json=completion(json.dumps({"candidates": candidates})))
+
+    model = OpenAIProvider("fake-key", "test-model", httpx.MockTransport(handler))
+    with pytest.raises(ProviderFailure) as exc:
+        await model.generate(REQUEST)
+    assert str(exc.value) == "AI generation is currently unavailable"
+    assert marker not in "".join(traceback.format_exception(exc.value))

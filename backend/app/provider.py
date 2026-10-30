@@ -2,6 +2,7 @@
 import asyncio
 import json
 import os
+import unicodedata
 from typing import Literal, Protocol
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -26,7 +27,9 @@ class ReplyResponse(BaseModel):
 
     @model_validator(mode="after")
     def check_candidates(self):
-        if len(self.candidates) != 3 or len({" ".join(c.text.split()).casefold() for c in self.candidates}) != 3:
+        normalized = {unicodedata.normalize("NFC", " ".join(candidate.text.split()).casefold())
+                      for candidate in self.candidates}
+        if len(self.candidates) != 3 or len(normalized) != 3:
             raise ValueError("Exactly three distinct candidates required")
         return self
 
@@ -194,8 +197,9 @@ class OpenAIProvider:
                                               model=completion.model,
                                               service_tier=completion.service_tier)
                 return answer, metadata
-        except (httpx.HTTPError, TimeoutError, ValueError, KeyError, TypeError, IndexError) as exc:
-            raise ProviderFailure("AI generation is currently unavailable") from exc
+        except (httpx.HTTPError, TimeoutError, ValueError, KeyError, TypeError, IndexError):
+            # Validation/transport diagnostics can contain private model text.
+            raise ProviderFailure("AI generation is currently unavailable") from None
 
 def build_provider() -> ReplyProvider:
     selected = os.getenv("PROOFREAD_PROVIDER", "mock").strip().lower()

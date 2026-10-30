@@ -63,3 +63,23 @@ def test_upstream_failure_is_safe_502(monkeypatch):
     result = client.post("/v1/responses", json=sample)
     assert result.status_code == 502
     assert result.json() == {"detail": "AI generation is currently unavailable"}
+
+
+@pytest.mark.parametrize('payload', [
+    {**sample, 'incoming_message': 'PRIVATE_SYNTHETIC', 'goal': 'x' * 501},
+    {**sample, 'incoming_message': 'PRIVATE_SYNTHETIC', 'mode': 'rewrite'},
+    {**sample, 'incoming_message': ['PRIVATE_SYNTHETIC']},
+])
+def test_validation_errors_do_not_echo_submitted_text(payload):
+    response = client.post('/v1/responses', json=payload)
+    assert response.status_code == 422
+    assert 'PRIVATE_SYNTHETIC' not in response.text
+    assert all(set(error) == {'loc', 'type', 'msg'} for error in response.json()['detail'])
+
+
+def test_malformed_json_diagnostics_do_not_repeat_body():
+    response = client.post('/v1/responses', content='{"incoming_message":"PRIVATE_SYNTHETIC",',
+                           headers={'Content-Type': 'application/json'})
+    assert response.status_code == 422
+    assert 'PRIVATE_SYNTHETIC' not in response.text
+    assert response.json()['detail'][0]['type'] == 'json_invalid'

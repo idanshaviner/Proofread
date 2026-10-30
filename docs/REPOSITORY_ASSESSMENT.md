@@ -2,6 +2,10 @@
 
 Scope: `codex/evaluation-output-followups` at `3a55e7f2325f9ac0b48812dec4b784d37a012905`, before this documentation-only assessment. This describes the checked-out feature branch, not proof that changes are merged into main. Reviewed documentation, application sources, evaluation tools, tests, scripts and CI; independent backend/AI, evaluation and iOS reviews supplement the coordinator's inspection. No application behavior, dependency, architecture or paid service was changed.
 
+> Follow-up: this is the pre-fix assessment. Subsequent reliability corrections
+> and current test results are recorded in `IMPLEMENTATION_STATUS.md`; findings
+> here should not be read as claims that those fixes remain unimplemented.
+
 ## A. Executive summary
 
 Proofread is a carefully guarded development scaffold for a native communication assistant. It is not yet a personalized communication product. Its strongest implementation is the reliability plumbing: bounded input/output contracts, safe provider failures, cancellation-resistant client state, synthetic authentication tests, and conservative experimental spend controls.

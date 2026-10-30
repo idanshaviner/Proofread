@@ -62,3 +62,15 @@ These checks share the existing paired-writer regression suite.
 Provider resource regressions (`tests/test_provider.py`) cover early stream stop
 and closure, total deadline, exact size boundary versus one excess byte, and
 rejection of compressed responses before decoding. Tests use MockTransport only.
+
+## October 30 audit regression coverage
+
+- API 422 responses retain field location/category but omit submitted input and
+  exception context; malformed JSON and whole-request validators are covered.
+- Provider formatted tracebacks omit upstream model/transport diagnostic text.
+- Canonically equivalent Unicode duplicate replies share a Python/Swift fixture.
+- Apple key and model-metadata preflight refuse compressed bodies before decoding;
+  model preflight also has a total deadline and 64 KiB streamed cap. Failure tests
+  prove no reservation or paid POST occurs.
+- Preview launcher selection/recovery is tested offline with disposable fake
+  interpreters and installation failures, never real pip network traffic.

@@ -115,3 +115,23 @@ launcher recovery, Unicode contract and privacy/resource findings are documented
 application code is unchanged during this assessment. Read-only live-ledger review
 found zero reserved but a different runtime fingerprint: paid execution remains
 blocked, and the ledger was not reset/rebound. Previous model evidence is stale.
+
+### October 30 audit fixes — integrated verification
+
+Fixed launcher interpreter preflight/recovery without deleting existing environments;
+422 input/context echo; formatted provider diagnostic privacy; NFC reply uniqueness;
+compressed Apple-key response handling; and unbounded live-model preflight. Each
+behavior change has a regression captured failing before implementation. Updated
+shared error and Unicode fixtures preserve Python/Swift contract checks.
+
+Integrated backend: **364 passed**, one existing Starlette/httpx warning. Shared
+Swift against a real local mock FastAPI server: **32 passed**, no skips/failures.
+The actual updated launcher reused a healthy environment and preview HTTP generate,
+rewrite and redacted invalid-input smoke passed on Linux. Launcher selection and
+failed-install recovery tests use disposable fake interpreters without network.
+Mac/Xcode/browser clipboard and Python 3.15 compatibility remain unverified; the
+launcher accepts 3.11–3.13, with cloud execution verified on 3.12. No paid inference,
+canonical campaign-ledger changes, private storage or personalization change.
+
+Remaining audit work: Swift bounded response receiving, live-report review adapter
+and richer experiment manifests. Those are not claimed complete by this batch.

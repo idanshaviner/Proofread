@@ -1,9 +1,11 @@
 """All provider traffic is injected MockTransport, never real inference."""
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 from decimal import Decimal
 import json
 import sys
+import traceback
 from types import SimpleNamespace
 
 import httpx
@@ -304,3 +306,121 @@ async def test_malformed_candidates_cannot_hide_mismatched_accounting(evidence, 
     assert report["records"][0]["status"] == "provider_or_contract_failure"
     assert len(report["unrun_cases"]) == 1
     assert json.loads(ledger.read_text())["calls_reserved"] == 2
+
+
+@pytest.mark.asyncio
+async def test_preflight_total_deadline_cancels_slow_stream_without_reservation(evidence, monkeypatch):
+    from evaluation import live
+    monkeypatch.setenv("PROOFREAD_OPENAI_API_KEY", "fake-test-key")
+    monkeypatch.setattr(live, "_PREFLIGHT_TIMEOUT_SECONDS", 0.01)
+    monkeypatch.setattr(live, "reserve_once", lambda *args, **kwargs: pytest.fail("Preflight must not reserve"))
+    state = {"cancelled": False, "closed": False, "methods": []}
+
+    class SlowMetadata(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield b'{"id":'
+            try:
+                await asyncio.sleep(0.05)
+            except asyncio.CancelledError:
+                state["cancelled"] = True
+                raise
+            yield b'"wrong-model"}'
+
+        async def aclose(self):
+            state["closed"] = True
+
+    def handler(request):
+        state["methods"].append(request.method)
+        return httpx.Response(200, stream=SlowMetadata())
+
+    with pytest.raises(LiveBlocked, match="availability"):
+        await run_live(execute=True, spec=evidence, transport=httpx.MockTransport(handler))
+    assert state == {"cancelled": True, "closed": True, "methods": ["GET"]}
+
+
+@pytest.mark.asyncio
+async def test_preflight_oversized_body_stops_early_without_reservation(evidence, monkeypatch):
+    from evaluation import live
+    monkeypatch.setenv("PROOFREAD_OPENAI_API_KEY", "fake-test-key")
+    monkeypatch.setattr(live, "reserve_once", lambda *args, **kwargs: pytest.fail("Preflight must not reserve"))
+    state = {"chunks": 0, "closed": False, "methods": []}
+
+    class OversizedMetadata(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            for _ in range(100):
+                state["chunks"] += 1
+                yield b"x" * 4096
+
+        async def aclose(self):
+            state["closed"] = True
+
+    def handler(request):
+        state["methods"].append(request.method)
+        return httpx.Response(200, stream=OversizedMetadata())
+
+    with pytest.raises(LiveBlocked, match="availability"):
+        await run_live(execute=True, spec=evidence, transport=httpx.MockTransport(handler))
+    assert state["chunks"] == 17  # 64 KiB allowed; stop at the first excess chunk.
+    assert state["closed"] and state["methods"] == ["GET"]
+
+
+@pytest.mark.asyncio
+async def test_preflight_refuses_compression_before_decoding_without_reservation(evidence, monkeypatch):
+    from evaluation import live
+    monkeypatch.setenv("PROOFREAD_OPENAI_API_KEY", "fake-test-key")
+    monkeypatch.setattr(live, "reserve_once", lambda *args, **kwargs: pytest.fail("Preflight must not reserve"))
+    state = {"read": False, "closed": False, "accept_encoding": None}
+
+    class CompressedMetadata(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            state["read"] = True
+            yield b"invalid compressed bytes"
+
+        async def aclose(self):
+            state["closed"] = True
+
+    def handler(request):
+        assert request.method == "GET"
+        state["accept_encoding"] = request.headers.get("accept-encoding")
+        return httpx.Response(200, headers={"content-encoding": "gzip"}, stream=CompressedMetadata())
+
+    with pytest.raises(LiveBlocked, match="availability"):
+        await run_live(execute=True, spec=evidence, transport=httpx.MockTransport(handler))
+    assert state == {"read": False, "closed": True, "accept_encoding": "identity"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("excess", [0, 1])
+async def test_preflight_exact_size_boundary_before_reservation(evidence, monkeypatch, excess):
+    from evaluation import live
+    monkeypatch.setenv("PROOFREAD_OPENAI_API_KEY", "fake-test-key")
+    reservations = []
+    def reserve(*args, **kwargs):
+        reservations.append(True)
+        raise LiveBlocked("Reservation boundary reached")
+    monkeypatch.setattr(live, "reserve_once", reserve)
+    body = json.dumps({"id": MODEL}).encode()
+    body += b" " * (65536 + excess - len(body))
+    calls = []
+    def handler(request):
+        calls.append(request.method)
+        return httpx.Response(200, content=body)
+    message = "Reservation boundary" if excess == 0 else "availability"
+    with pytest.raises(LiveBlocked, match=message):
+        await run_live(execute=True, spec=evidence, transport=httpx.MockTransport(handler))
+    assert len(reservations) == (1 if excess == 0 else 0)
+    assert calls == ["GET"]
+
+
+@pytest.mark.asyncio
+async def test_preflight_transport_errors_do_not_expose_diagnostics_or_reserve(evidence, monkeypatch):
+    from evaluation import live
+    monkeypatch.setenv("PROOFREAD_OPENAI_API_KEY", "fake-test-key")
+    monkeypatch.setattr(live, "reserve_once", lambda *args, **kwargs: pytest.fail("Preflight must not reserve"))
+    def handler(request):
+        raise httpx.ConnectError("fake-test-key upstream-secret-diagnostic", request=request)
+    with pytest.raises(LiveBlocked, match="availability") as error:
+        await run_live(execute=True, spec=evidence, transport=httpx.MockTransport(handler))
+    rendered = "".join(traceback.format_exception(error.value))
+    assert "upstream-secret-diagnostic" not in rendered
+    assert "fake-test-key" not in rendered

@@ -1,20 +1,9 @@
 {
   "detail": [
     {
+      "loc": ["body"],
       "type": "value_error",
-      "loc": [
-        "body"
-      ],
-      "msg": "Value error, Rewrite requires nonblank draft",
-      "input": {
-        "incoming_message": "Want to meet?",
-        "relationship": "friend",
-        "goal": "make plans",
-        "mode": "rewrite"
-      },
-      "ctx": {
-        "error": {}
-      }
+      "msg": "Invalid request field"
     }
   ]
 }

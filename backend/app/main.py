@@ -1,10 +1,22 @@
 """Proofread API: deterministic mock by default, opt-in model provider."""
 from typing import Literal
 from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
 from .provider import ReplyResponse, ProviderConfigurationError, ProviderFailure, build_provider
 
 app = FastAPI(title="Proofread Prototype", version="0.2.0")
+
+@app.exception_handler(RequestValidationError)
+async def invalid_request(_request, exception):
+    # Pydantic errors include input and exception context, sometimes the entire
+    # message body. Keep field locations and categories, never submitted values.
+    return JSONResponse(status_code=422, content={"detail": [
+        {"loc": error["loc"], "type": error["type"], "msg": "Invalid request field"}
+        for error in exception.errors()
+    ]})
+
 
 class ReplyRequest(BaseModel):
     mode: Literal["generate", "rewrite"] = "generate"

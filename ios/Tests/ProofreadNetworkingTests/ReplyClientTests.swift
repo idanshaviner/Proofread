@@ -61,6 +61,10 @@ final class ReplyClientTests: XCTestCase {
         XCTAssertEqual(result.candidates.count, 3)
     }
 
+    func testCanonicallyEquivalentRepliesAreRejected() async throws {
+        try await assertFailure(status: 200, data: fixture("unicode-duplicate"), expected: .invalidResponse)
+    }
+
     func testValidationErrorsDoNotExposeServerPayload() async throws {
         let data = try fixture("validation-error")
         try await assertFailure(status: 422, data: data, expected: .http(422))

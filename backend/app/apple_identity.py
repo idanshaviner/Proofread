@@ -152,8 +152,13 @@ class AppleIdentityVerifier:
             async with asyncio.timeout(_FETCH_TIMEOUT_SECONDS):
                 async with httpx.AsyncClient(timeout=_FETCH_TIMEOUT_SECONDS,
                                              transport=self._transport, follow_redirects=False) as client:
-                    async with client.stream("GET", APPLE_JWKS_URL) as response:
+                    async with client.stream("GET", APPLE_JWKS_URL,
+                                             headers={"Accept-Encoding": "identity"}) as response:
                         response.raise_for_status()
+                        # HTTPX decompresses before yielding decoded chunks. A
+                        # decoded-size limit alone cannot bound that allocation.
+                        if response.headers.get("content-encoding", "identity").lower() != "identity":
+                            raise ValueError("Compressed key responses are unsupported")
                         content_length = response.headers.get("content-length")
                         if content_length is not None and int(content_length) > _MAX_JWKS_BYTES:
                             raise ValueError("Key response is too large")

@@ -32,6 +32,8 @@ MODEL = "gpt-5.4-mini"
 BUDGET_USD = Decimal("2.00")
 OUTPUT_TOKEN_CAP = 512
 LEDGER_PATH = Path("/workspace/.proofread/live-budget.json")
+_PREFLIGHT_TIMEOUT_SECONDS = 15
+_MAX_PREFLIGHT_BYTES = 65536
 
 
 class LiveBlocked(ValueError):
@@ -224,14 +226,27 @@ async def run_live(*, execute=False, spec=None, transport=None, _ledger_path=LED
         raise LiveBlocked("Configure the approved key securely in environment settings")
     spec = validate_spec(spec)
     try:
-        async with httpx.AsyncClient(timeout=15, transport=transport, follow_redirects=False) as client:
-            preflight = await client.get(f"https://api.openai.com/v1/models/{MODEL}",
-                                         headers={"Authorization": f"Bearer {key}"})
-            preflight.raise_for_status()
-            if preflight.json().get("id") != MODEL:
+        # Bound the entire operation: HTTPX phase timeouts alone do not prevent
+        # a slow stream from holding this nonbillable prerequisite indefinitely.
+        async with asyncio.timeout(_PREFLIGHT_TIMEOUT_SECONDS):
+            async with httpx.AsyncClient(timeout=_PREFLIGHT_TIMEOUT_SECONDS, transport=transport,
+                                         follow_redirects=False) as client:
+                async with client.stream(
+                    "GET", f"https://api.openai.com/v1/models/{MODEL}",
+                    headers={"Authorization": f"Bearer {key}", "Accept-Encoding": "identity"},
+                ) as response:
+                    response.raise_for_status()
+                    if response.headers.get("content-encoding", "identity").lower() != "identity":
+                        raise ValueError("Compressed model metadata is unsupported")
+                    content = bytearray()
+                    async for chunk in response.aiter_bytes():
+                        if len(content) + len(chunk) > _MAX_PREFLIGHT_BYTES:
+                            raise ValueError("Model metadata exceeds the response limit")
+                        content.extend(chunk)
+            if json.loads(content).get("id") != MODEL:
                 raise LiveBlocked("Approved model availability was not confirmed")
-    except (httpx.HTTPError, ValueError, AttributeError) as exc:
-        raise LiveBlocked("Approved model availability was not confirmed") from exc
+    except (httpx.HTTPError, TimeoutError, ValueError, TypeError, AttributeError, RecursionError):
+        raise LiveBlocked("Approved model availability was not confirmed") from None
     # Reserve BOTH requests before the first paid operation. A crash cannot make
     # the second slot available to a repeat invocation.
     ledger = reserve_once(spec, _ledger_path=_ledger_path)
