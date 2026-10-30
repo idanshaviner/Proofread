@@ -55,3 +55,12 @@ Owner actions are consolidated in `OWNER_SETUP.md`; do not repeatedly request th
 After a reported settings change, recheck Apple reads/key presence before resuming
 gated validation. Run `ios/scripts/validate-macos.sh` on an actual Mac and preserve
 real build evidence; syntax/Linux checks alone are not native acceptance.
+
+October 30 audit supersedes stale current-count statements above: see
+`REPOSITORY_ASSESSMENT.md`. Next routine fixes: launcher version/recovery, sanitized
+validation/exception diagnostics, Unicode contract parity, bounded Apple/live
+preflight fetches. Add failing regressions before each fix. Personalization/profile,
+context API and private-data architecture changes require the owner's review of
+the assessment proposals. Paid test additionally requires an explicitly reviewed
+same-campaign migration decision because the retained runtime fingerprint differs;
+never recreate credit. No application changes were made during the assessment.

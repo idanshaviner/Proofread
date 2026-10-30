@@ -105,3 +105,13 @@ existing API routes and forced mock mode. This is an explicitly requested testin
 artifact, not a new native design. HTTP smoke verified HTML/no-store, generate,
 rewrite and invalid-input responses. Browser rendering/clipboard and Mac launcher
 execution remain unverified. No AI or private storage is enabled.
+
+### October 30 professional assessment (read-only application audit)
+
+See `REPOSITORY_ASSESSMENT.md` for A–I product/architecture/AI/code assessment and
+approval proposals. Current backend: 335 passed; pip check clean. Shared Swift:
+30 passed, 1 optional local API test skipped, no native Xcode execution. Confirmed
+launcher recovery, Unicode contract and privacy/resource findings are documented;
+application code is unchanged during this assessment. Read-only live-ledger review
+found zero reserved but a different runtime fingerprint: paid execution remains
+blocked, and the ledger was not reset/rebound. Previous model evidence is stale.
