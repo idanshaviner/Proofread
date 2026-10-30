@@ -42,3 +42,13 @@ For a repeatable unsigned simulator build followed by shared tests on a Mac, run
 prerequisites and fails on Linux; its actual Xcode path remains unverified here.
 See [owner setup](../docs/OWNER_SETUP.md) for cloud credentials/network settings,
 local simulator acceptance and finalized-document export instructions.
+
+## Approved offline keyboard feasibility target
+
+The `ProofreadKeyboard` extension is a synthetic platform spike, embedded by the
+app's XcodeGen target. It has minimal typing controls and local sample suggestions;
+it does not call the backend, personalize or store messages. See
+[keyboard testing instructions](../docs/KEYBOARD_PROTOTYPE_TESTING.md) for enabling
+it and checking proxy context, safe insertion, permissions and lifecycle. Native
+compilation and all host-app compatibility remain unverified until Xcode/device
+checks actually run. Full Access is optional for these offline fixtures.

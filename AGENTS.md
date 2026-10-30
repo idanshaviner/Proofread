@@ -5,7 +5,8 @@
 Read `README.md`, all `docs/*.md`, and applicable directory instructions before work. In particular, follow [the operating protocol](docs/ENGINEERING_PROTOCOL.md), `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`, `NEXT_TASKS.md`, `TESTING.md` and `AI_EVALUATION.md`. Inspect available tools/integrations before substantial work. Check for finalized exports in `docs/source/`; current PRD, SPEC, AI architecture and roadmap are provisional reconstructions, not finalized originals. Preserve established decisions while continuing compatible work. The owner's
 October 30 keyboard requirement in `docs/source/KEYBOARD_REQUIREMENT_2026-10-30.md`
 supersedes the provisional indefinite keyboard deferral; `docs/KEYBOARD_PROPOSAL.md`
-is unapproved. Never claim a custom keyboard adds controls to Apple's keyboard or
+records the approved narrow synthetic feasibility spike; full keyboard product,
+network/personalization integration, private data and final UI remain unapproved. Never claim a custom keyboard adds controls to Apple's keyboard or
 reads host conversation transcripts. Extension/UI/privacy changes still need approval.
 
 ## Operate autonomously

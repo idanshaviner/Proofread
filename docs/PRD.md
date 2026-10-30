@@ -3,8 +3,8 @@
 
 **Owner update, October 30:** cross-application keyboard assistance is a core
 long-term requirement, superseding the earlier keyboard deferral below. See
-[source requirement](source/KEYBOARD_REQUIREMENT_2026-10-30.md) and the unapproved
-[implementation proposal](KEYBOARD_PROPOSAL.md). The current copy/paste harness is
+[source requirement](source/KEYBOARD_REQUIREMENT_2026-10-30.md) and the
+[implementation proposal (synthetic spike approved; full product pending)](KEYBOARD_PROPOSAL.md). The current copy/paste harness is
 an intermediate test surface, not the intended final daily-use workflow.
 
 ## Problem and goal

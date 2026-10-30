@@ -1,10 +1,15 @@
 # Proofread cross-application keyboard proposal
 
-Status: **proposal, not implementation approval**. October 30, 2026.
+Status: **narrow synthetic feasibility spike approved October 30, 2026**.
+The owner approved the final question authorizing this spike. Full product UI,
+personalization, network/private-data integration and release remain proposals.
+See `KEYBOARD_PROTOTYPE_TESTING.md` for implementation scope and unrun native gates.
 Owner source: [keyboard requirement](source/KEYBOARD_REQUIREMENT_2026-10-30.md).
 This supersedes earlier provisional documents that deferred keyboards indefinitely.
 It establishes product direction, not authorization for extension UX, entitlements,
-private-data policy, new spending or release. No keyboard code is implemented.
+private-data policy, new spending or release. Offline prototype source is now
+implemented; the architecture-gap descriptions below document the pre-spike
+baseline. Current source scope and unrun native gates are in the testing guide.
 
 ## Feasibility and essential product distinction
 

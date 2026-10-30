@@ -92,3 +92,13 @@ credential/cookie behavior with synthetic transports. A separate local HTTP/1.1
 probe verified two pooled model-adapter requests share one TCP connection versus
 two connections for two transient requests. This used only loopback synthetic
 traffic and is not an OpenAI/TLS latency or cost benchmark.
+
+## Synthetic keyboard spike
+
+`KeyboardPrototypeModelTests` covers both fixture modes, exact snapshots (including
+canonical-equivalent changed bytes), document changes, unavailable/oversized
+context, active-selection refusal, one-use insertion, stale candidate IDs and
+explicit invalidation. The shared suite does not compile UIKit on Linux. Actual
+keyboard build/device acceptance and the host matrix are in
+`KEYBOARD_PROTOTYPE_TESTING.md`. Do not equate the mock API integration test with
+keyboard insertion or Full Access verification.

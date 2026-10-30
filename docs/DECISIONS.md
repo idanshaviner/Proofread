@@ -53,3 +53,15 @@ Apple source reads were blocked by proxy403; current vendor/review acceptance is
 not verified. No extension, privacy change, entitlement or paid service is approved
 by the requirement alone. A feasible custom keyboard is distinct from modifying
 Apple's built-in keyboard, and cannot automatically read host conversation history.
+
+## Keyboard spike approval
+
+The owner answered “Yes” to the narrow synthetic separate-keyboard feasibility
+prototype. Authorized: local fixture suggestions, text-proxy availability, explicit
+insertion and keyboard/lifecycle/Full Access state testing. Not authorized: full
+keyboard rollout, changed generation API semantics, network/private-history or
+session sharing, App Groups/Keychain policy, paid inference or release. The spike
+uses no network or persistent state. RequestsOpenAccess is declared to permit
+optional permission-state testing; fixture suggestions do not require permission.
+Insertion refuses active text selection to avoid replacing host content. Current
+Apple reference access remains blocked and actual Xcode/device acceptance is unrun.

@@ -187,3 +187,23 @@ matrix, effort/cost ranges and decisions before implementation. Five official
 Apple read attempts returned proxy403; sources are linked but current contracts
 were not refreshed. No extension target, app workflow, entitlement, storage or API
 changed. This is documentation/proposal work; no native or compatibility tests ran.
+
+### Approved synthetic keyboard feasibility implementation
+
+Implemented an embedded `ProofreadKeyboard` app-extension declaration and UIKit
+controller with minimal lowercase typing/switching controls, optional Full Access
+status inspection, explicit context capture, local generate/rewrite fixtures and
+safe cursor insertion. Shared Foundation model enforces exact bounded snapshots,
+document identity comparison, selection blocking, fresh candidate IDs, single-use
+selection and invalidation. Only counts are displayed; no host text is saved.
+No network, App Group, Keychain/session sharing, backend/schema, personalization,
+private-history or paid-service change. Full Access is optional for these fixtures.
+
+Executed: 10 new safety tests (initial missing-model red captured); integrated
+shared Swift **43 passed**, no skips/failures, against a real local mock API.
+Backend **374 passed**, one existing warning. Extension source/response model
+subset type-checks in Foundation; UIKit syntax parses and project/plist references
+pass static checks. **UIKit/iOS compilation, XcodeGen generation, keyboard layout,
+permissions, insertion and all messaging-app compatibility remain unverified.**
+Current Apple source access remains blocked. See `KEYBOARD_PROTOTYPE_TESTING.md`;
+this implements the spike's code, not platform acceptance or product completion.

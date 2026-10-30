@@ -4,6 +4,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: 5.9
+    MARKETING_VERSION: 0.1
+    CURRENT_PROJECT_VERSION: 1
     IPHONEOS_DEPLOYMENT_TARGET: '17.0'
 targets:
   Proofread:
@@ -11,6 +13,8 @@ targets:
     platform: iOS
     sources:
       - path: Proofread
+    dependencies:
+      - target: ProofreadKeyboard
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.proofreadapp.prototype
@@ -19,3 +23,19 @@ targets:
         INFOPLIST_KEY_ProofreadAPIBaseURL: $(PROOFREAD_API_BASE_URL)
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking: YES
+
+  ProofreadKeyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ProofreadKeyboard
+        excludes: [Info.plist]
+      - path: Proofread/Models/KeyboardPrototypeModel.swift
+      - path: Proofread/Models/ResponseModels.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.proofreadapp.prototype.keyboard
+        INFOPLIST_FILE: ProofreadKeyboard/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES

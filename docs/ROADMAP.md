@@ -15,8 +15,9 @@ Original PRD/SPEC/research exports remain outstanding. See
 | 5 | Personal daily-use validation | Privacy/auth/budget gates met; explicit feedback, latency and usefulness evidence |
 | 6 | Refinement and broader release | Keyboard ergonomics/accessibility, quality/cost/security/review gates and separate release approval |
 
-A small synthetic platform spike is proposed, not approved or implemented. It
-would de-risk Phase 3 without authorizing private imports or superseding the
+The owner approved a small synthetic platform spike; see
+`KEYBOARD_PROTOTYPE_TESTING.md` for its offline implementation and native validation
+gates. It de-risks Phase 3 without authorizing private imports or superseding the
 owner's phase priorities. App-store/provider spending, storage/retention, final
 keyboard UI and architecture changes remain approval-bound. Current prototype
 code remains working; this roadmap is direction, not a completion claim.

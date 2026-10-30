@@ -58,9 +58,18 @@ connection lifetime tests and integrated results are in the current status entry
 Aggregate user quotas/concurrency policy, model/output tuning and private-response
 caching remain decisions or experiments, not implied by connection-pool reuse.
 
-Keyboard direction: read owner source and `KEYBOARD_PROPOSAL.md`. Await decisions
-on separate-keyboard feasibility spike, draft-only context semantics, final UI and
+Keyboard direction: read owner source and `KEYBOARD_PROPOSAL.md`. The separate-keyboard synthetic feasibility spike is now approved; follow
+`KEYBOARD_PROTOTYPE_TESTING.md` for actual Xcode/device acceptance. Await decisions
+on draft-only API semantics, final UI and
 shared session/data policy before implementation. Earlier indefinite keyboard
 MVP deferral is superseded; current lack of extension/personalization remains real.
 All host applications are untested and official Apple research is currently blocked.
 Continue unrelated routine fixes while decisions/platform prerequisites are pending.
+
+Approved keyboard spike source is implemented. Next platform gate: run the actual
+Xcode build and synthetic cursor/selection/switching/permission/lifecycle checklist
+in `KEYBOARD_PROTOTYPE_TESTING.md`. Latest shared suite 43/43 including local mock
+HTTP integration; backend374/374. UIKit and all host apps remain unverified.
+No additional implementation approval is needed to debug this approved spike, but
+cloud networking, full typing UX, history/profile integration and release are not
+included. Do not advance to daily private use on offline-model test evidence.
