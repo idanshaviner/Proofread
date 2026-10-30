@@ -42,3 +42,10 @@ costs, significant UX, production deployment or protected-branch merging.
 
 Owner prerequisite instructions remain in `OWNER_SETUP.md`. The local preview is
 mock-only; use its current README and updated bundle rather than older launchers.
+
+Performance review follow-up: `PERFORMANCE_COST_REVIEW.md` records current evidence.
+CI caching/stale cancellation and bounded oversized-input checks are implemented.
+Prioritize HTTP client lifespan/pooling and measured admission/cost protection
+before optimizing sub-millisecond offline reports; no paid benchmark is authorized
+by the review. Trigger deduplication must preserve required checks and current
+feature-branch coverage while PR API access is unavailable.

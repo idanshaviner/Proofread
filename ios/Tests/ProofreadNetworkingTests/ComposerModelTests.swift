@@ -107,6 +107,21 @@ final class ComposerModelTests: XCTestCase {
         }
     }
 
+    func testVeryLargeUnicodePasteIsRejectedWithoutGeneration() async {
+        let harness = GenerationHarness()
+        let model = makeModel(harness)
+        model.input.incomingMessage = String(repeating: "e\u{0301}", count: 500_000)
+        XCTAssertFalse(model.input.isValid)
+        model.generate()
+        await drain()
+        XCTAssertFalse(model.loading)
+        XCTAssertTrue(harness.requests.isEmpty)
+        if !harness.requests.isEmpty {
+            harness.succeed(0)
+            await drain()
+        }
+    }
+
     func testEveryInputChangeClearsSuggestionsAndCopiedState() async {
         let changes: [(inout ComposerInput) -> Void] = [
             { $0.incomingMessage += " changed" }, { $0.relationship += " changed" },

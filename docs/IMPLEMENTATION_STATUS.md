@@ -135,3 +135,22 @@ canonical campaign-ledger changes, private storage or personalization change.
 
 Remaining audit work: Swift bounded response receiving, live-report review adapter
 and richer experiment manifests. Those are not claimed complete by this batch.
+
+### October 30 performance/cost review
+
+Reviewed backend/AI, evaluation/ledger, native/preview, setup and CI paths; see
+`PERFORMANCE_COST_REVIEW.md` for ranked opportunities and trade-offs. Implemented
+pip caching and same-event/ref stale-run cancellation in mock-only backend CI;
+workflow YAML parsed and fields checked locally, remote savings unmeasured.
+Bounded Swift input-length checking now precedes trimming for enormous invalid
+pastes, preserving codepoint and nonblank rules. Added large-paste/Unicode boundary
+coverage. Backend: 364 passed (one existing warning). Shared Swift: 32 passed,
+1 optional local-API skip, 0 failures; no Xcode execution. Paid-call counts and
+ledger state were not changed. No model/provider, privacy or product changes.
+
+Eight-case blind-review preparation benchmark: 100 runs, median 0.475 ms,
+max 0.770 ms locally. Additional HTTP client construction, forwarded unused draft,
+style-memory and unbounded concurrency probes identify potential work but do not
+measure live latency/cost. Preserve integrity and budget durability rather than
+micro-optimizing their checks. Reuse outbound HTTP connections, bounded Swift
+receive and approved admission/usage controls remain meaningful follow-ups.

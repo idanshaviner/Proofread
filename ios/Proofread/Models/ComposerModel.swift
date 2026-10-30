@@ -19,8 +19,9 @@ struct ComposerInput: Equatable {
 
     private func validRequiredField(_ value: String, maximum: Int) -> Bool {
         // Match the API's Python codepoint limits, including decomposed Unicode.
-        !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        value.unicodeScalars.count <= maximum
+        // Reject oversized pastes after at most one scalar beyond the limit.
+        guard value.unicodeScalars.prefix(maximum + 1).count <= maximum else { return false }
+        return !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var request: ReplyRequest {
