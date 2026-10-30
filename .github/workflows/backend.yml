@@ -1,7 +1,9 @@
 name: Backend tests
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 # Cancel stale mock-only runs for the same event/ref; never use this policy on
 # paid evaluation workflows whose accounting must survive interruption.
 concurrency:
@@ -23,6 +25,8 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-runtime.txt
       - run: python -m pip install -r requirements.txt
       - run: python -m pytest -q

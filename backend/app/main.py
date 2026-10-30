@@ -1,12 +1,25 @@
 """Proofread API: deterministic mock by default, opt-in model provider."""
+from contextlib import asynccontextmanager
 from typing import Literal
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
-from .provider import ReplyResponse, ProviderConfigurationError, ProviderFailure, build_provider
+from .provider import (ReplyResponse, OpenAIProvider, ProviderConfigurationError,
+                       ProviderFailure, build_provider, create_provider_http_client)
 
-app = FastAPI(title="Proofread Prototype", version="0.2.0")
+
+@asynccontextmanager
+async def lifespan(application):
+    async with create_provider_http_client() as client:
+        application.state.provider_http_client = client
+        try:
+            yield
+        finally:
+            del application.state.provider_http_client
+
+
+app = FastAPI(title="Proofread Prototype", version="0.2.0", lifespan=lifespan)
 
 @app.exception_handler(RequestValidationError)
 async def invalid_request(_request, exception):
@@ -40,7 +53,12 @@ def health():
 @app.post("/v1/responses", response_model=ReplyResponse)
 async def responses(request: ReplyRequest):
     try:
-        return await build_provider().generate(request)
+        provider = build_provider()
+        if isinstance(provider, OpenAIProvider) and provider.client is None and provider.transport is None:
+            # Mounted apps may not run their own lifespan. None retains the
+            # provider's transient ownership path, which closes after the call.
+            provider.client = getattr(app.state, "provider_http_client", None)
+        return await provider.generate(request)
     except ProviderConfigurationError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ProviderFailure as exc:

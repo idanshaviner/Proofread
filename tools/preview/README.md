@@ -14,7 +14,8 @@ bash tools/preview/start.command
 Launcher accepts Python 3.11–3.13; cloud execution is verified on 3.12.
 Python 3.15 is not accepted by this launcher because dependency/platform
 compatibility has not been validated. Internet is needed on first run to install declared dependencies
-into `backend/.venv`. Open http://127.0.0.1:8010 yourself in a local browser. This
+into `backend/.venv`. The preview installs only `backend/requirements-runtime.txt`;
+full backend development/authentication tests still use `backend/requirements.txt`. Open http://127.0.0.1:8010 yourself in a local browser. This
 is a local testing address, not a hosted cloud preview. Stop with Control-C.
 No Xcode, Git or Apple sign-in is required for the extracted bundle.
 

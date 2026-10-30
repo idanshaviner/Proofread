@@ -97,3 +97,27 @@ profiling or billing analysis was performed. October 15 pricing is historical an
 must be refreshed before live testing. The preserved campaign runtime mismatch
 continues to block paid execution. Recommend finishing reliability/measurement
 and real baseline validation before pursuing complex cost optimizations.
+
+## Authorized follow-through
+
+The owner subsequently authorized proceeding. CI triggers now target PRs and
+pushes to main, with manual dispatch for other branches. This avoids simultaneous
+feature push+PR runs while keeping main coverage. Feature branches without an open
+PR no longer receive an automatic push check; use local validation or manual
+Actions dispatch. Required protected-branch checks must be reviewed before merge.
+Preview runtime separation was verified in a fresh Python 3.12 environment using
+the actual launcher and HTTP generate/rewrite/422 routes, with pytest/JWT/crypto
+absent. Full development still includes those packages. HTTP client pooling
+verification is recorded in the subsequent status checkpoint; prior findings above
+describe the review baseline. No measured TLS or paid-inference savings are claimed.
+
+### Connection reuse result
+
+FastAPI now owns the shared client for its lifespan. Borrowers do not close it;
+standalone calls close transient clients and explicit test transports remain
+isolated. A reject-all cookie policy prevents response cookies from becoming
+cross-request state, and credentials remain per request. A loopback HTTP/1.1
+probe verified two pooled calls use one TCP connection instead of two transient
+connections. The complete backend suite passes 374 tests. Standard HTTPX pool
+limits and model/output settings remain unchanged. This is evidence of resource
+reuse, not measured OpenAI latency or dollar savings.

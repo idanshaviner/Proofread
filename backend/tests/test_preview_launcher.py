@@ -54,7 +54,8 @@ def preview(tmp_path):
     (root / "tools/preview").mkdir(parents=True)
     (root / "backend").mkdir()
     shutil.copyfile(LAUNCHER, root / "tools/preview/start.command")
-    (root / "backend/requirements.txt").write_text("fastapi>=0.115,<1\n")
+    (root / "backend/requirements.txt").write_text("-r requirements-runtime.txt\npytest>=8,<10\n")
+    (root / "backend/requirements-runtime.txt").write_text("fastapi>=0.115,<1\npackaging>=24,<27\n")
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     events = tmp_path / "events.jsonl"
@@ -161,3 +162,12 @@ def test_failed_dependency_install_never_starts_server_and_next_run_recovers(pre
     recovered, _ = run()
     assert recovered.returncode == 0, recovered.stderr
     assert (root / "backend/.venv/deps-ready").exists()
+
+
+def test_launcher_installs_only_the_preview_runtime_manifest(preview):
+    _, fake_bin, interpreter, run = preview
+    interpreter(fake_bin / "python3.13", 13)
+    result, calls = run()
+    assert result.returncode == 0, result.stderr
+    installs = [call["args"] for call in calls if call["args"][:3] == ["-m", "pip", "install"]]
+    assert installs == [["-m", "pip", "install", "-r", "backend/requirements-runtime.txt"]]

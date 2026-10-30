@@ -1,5 +1,7 @@
 """Provider adapters. No user messages are persisted or logged."""
 import asyncio
+from contextlib import asynccontextmanager
+from http.cookiejar import CookieJar, DefaultCookiePolicy
 import json
 import os
 import unicodedata
@@ -9,6 +11,25 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 _REQUEST_TIMEOUT_SECONDS = 25.0
 _MAX_RESPONSE_BYTES = 262144
+
+
+class _RejectCookies(DefaultCookiePolicy):
+    def set_ok(self, cookie, request):
+        return False
+
+    def return_ok(self, cookie, request):
+        return False
+
+
+class _NoCookieJar(CookieJar):
+    def __init__(self):
+        super().__init__(policy=_RejectCookies())
+
+
+def create_provider_http_client(*, transport=None) -> httpx.AsyncClient:
+    """Caller owns shutdown; standard HTTPX pool limits, no stored cookies/auth."""
+    return httpx.AsyncClient(timeout=_REQUEST_TIMEOUT_SECONDS, transport=transport,
+                             cookies=_NoCookieJar())
 
 
 class _CandidateContent(BaseModel):
@@ -109,11 +130,25 @@ OUTPUT_SCHEMA = {
 class OpenAIProvider:
     """Opt-in model adapter; no network requests unless selected."""
     def __init__(self, key: str, model: str, transport: httpx.AsyncBaseTransport | None = None,
-                 *, max_completion_tokens: int = 2048):
+                 *, max_completion_tokens: int = 2048, client: httpx.AsyncClient | None = None):
         if type(max_completion_tokens) is not int or not 1 <= max_completion_tokens <= 16384:
             raise ValueError("max_completion_tokens must be an integer between 1 and 16384")
+        if client is not None and transport is not None:
+            raise ValueError("Provide either a shared client or an isolated transport")
+        if client is not None and (not isinstance(client.cookies.jar, _NoCookieJar) or client.cookies):
+            raise ValueError("Shared clients must use create_provider_http_client")
         self.key, self.model, self.transport = key, model, transport
         self.max_completion_tokens = max_completion_tokens
+        self.client = client
+
+    @asynccontextmanager
+    async def _client_scope(self):
+        if self.client is not None:
+            # The application/caller, rather than an individual reply, owns it.
+            yield self.client
+        else:
+            async with create_provider_http_client(transport=self.transport) as client:
+                yield client
 
     def build_payload(self, request) -> dict:
         """Return the exact request structure for bounded integration preflight.
@@ -154,11 +189,12 @@ class OpenAIProvider:
     async def _generate(self, request, *, require_metadata):
         payload = self.build_payload(request)
         try:
-            async with httpx.AsyncClient(timeout=_REQUEST_TIMEOUT_SECONDS, transport=self.transport) as client:
+            async with self._client_scope() as client:
                 # Bound elapsed network time as well as individual HTTPX phases.
                 async with asyncio.timeout(_REQUEST_TIMEOUT_SECONDS):
                     async with client.stream(
                         "POST", "https://api.openai.com/v1/chat/completions",
+                        auth=None,
                         json=payload, headers={"Authorization": f"Bearer {self.key}",
                                                 "Accept-Encoding": "identity"},
                     ) as response:

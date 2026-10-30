@@ -6,7 +6,7 @@ not current acceptance results. Use synthetic data and mock inference by default
 
 ## Continue independently
 
-1. Review/publish the audit-reliability fixes branch and its latest CI. No protected
+1. Review/publish the latest performance follow-through branch and its CI. No protected
    branch merge is authorized. Preserve the existing stacked feature history.
 2. Bound the Swift client's response buffering before decoding; add oversized-body
    and cancellation regressions without changing the native workflow.
@@ -49,3 +49,11 @@ Prioritize HTTP client lifespan/pooling and measured admission/cost protection
 before optimizing sub-millisecond offline reports; no paid benchmark is authorized
 by the review. Trigger deduplication must preserve required checks and current
 feature-branch coverage while PR API access is unavailable.
+
+
+Latest follow-through: preview runtime/development dependencies are separated and
+verified in a fresh runtime-only install. CI runs PRs/main pushes/manual dispatch,
+so feature branches without a PR intentionally have no automatic push job. HTTP
+connection lifetime tests and integrated results are in the current status entry.
+Aggregate user quotas/concurrency policy, model/output tuning and private-response
+caching remain decisions or experiments, not implied by connection-pool reuse.

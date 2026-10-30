@@ -74,3 +74,21 @@ rejection of compressed responses before decoding. Tests use MockTransport only.
   prove no reservation or paid POST occurs.
 - Preview launcher selection/recovery is tested offline with disposable fake
   interpreters and installation failures, never real pip network traffic.
+
+## Preview runtime isolation
+
+`requirements-runtime.txt` is sufficient for the forced-mock browser harness.
+A fresh Python 3.12 environment was installed from that file and exercised through
+the actual launcher and HTTP generate/rewrite/422 routes, with pytest, JWT and
+cryptography confirmed absent. Full backend tests and Apple verification still
+require `requirements.txt` (which includes the runtime manifest). Do not infer
+Mac/Python 3.15 acceptance or AI quality from this Linux runtime check.
+
+## HTTP client ownership and reuse
+
+`tests/test_connection_lifecycle.py` exercises pooled lifetime/shutdown, transient
+fallback, explicit transport isolation, errors/cancellation and per-request
+credential/cookie behavior with synthetic transports. A separate local HTTP/1.1
+probe verified two pooled model-adapter requests share one TCP connection versus
+two connections for two transient requests. This used only loopback synthetic
+traffic and is not an OpenAI/TLS latency or cost benchmark.

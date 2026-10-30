@@ -154,3 +154,26 @@ style-memory and unbounded concurrency probes identify potential work but do not
 measure live latency/cost. Preserve integrity and budget durability rather than
 micro-optimizing their checks. Reuse outbound HTTP connections, bounded Swift
 receive and approved admission/usage controls remain meaningful follow-ups.
+
+### October 30 authorized optimization follow-through
+
+- FastAPI lifespan owns a reusable provider HTTPX client and closes it on shutdown.
+  Standalone/provider CLI calls keep transient owned clients. Explicit test
+  transports remain isolated; mounted apps without lifespan use safe fallback.
+  No response cookies are retained and Authorization stays per request. Standard
+  pool limits, model settings, token caps and no-retry behavior are preserved.
+- Local HTTP/1.1 probe: two pooled calls used one TCP connection; two standalone
+  calls used two. This verifies connection reuse, not live OpenAI TLS latency or
+  monetary savings. Lifecycle tests cover errors/cancellation, shutdown and
+  concurrent credential/cookie isolation.
+- Preview uses runtime-only requirements; full requirements retain tests and
+  Apple crypto dependencies. Fresh isolated install, actual launcher and HTTP
+  generate/rewrite/422 checks passed with pytest/JWT/cryptography absent.
+- CI deduplicates feature push/PR execution by running PRs plus main pushes, with
+  manual dispatch for other branches. Pip cache hashes both requirement files.
+  YAML/event/cache checks pass; actual remote cache/billing gains unmeasured.
+
+Integrated backend: **374 passed**, one existing deprecation warning; dependency
+consistency passes. No Swift source changed in this follow-through (previous shared
+suite: 32 pass/1 optional skip). No Xcode/native or real-model acceptance is implied.
+No paid inference, quota policy, private caching/storage or campaign migration.

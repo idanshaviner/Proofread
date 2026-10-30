@@ -56,3 +56,14 @@ No real private conversations, API keys, or credentials in the public repository
 The approved [Apple verifier foundation](docs/AUTHENTICATION.md) validates a conservative signature/claim contract with synthetic tests. Current Apple compatibility remains unverified; authentication integration, nonce replay protection, sessions and private-data access are not implemented.
 
 Future Codex tasks discover repository-wide instructions in [AGENTS.md](AGENTS.md). Supporting procedures are in [the engineering protocol](docs/ENGINEERING_PROTOCOL.md); read [implementation status](docs/IMPLEMENTATION_STATUS.md), [decisions](docs/DECISIONS.md) and [next tasks](docs/NEXT_TASKS.md) before development.
+
+## Runtime and development dependencies
+
+`backend/requirements.txt` includes the response runtime plus tests and the Apple
+verifier dependencies. The mock-only local preview uses the smaller
+`backend/requirements-runtime.txt` and cannot exercise the Apple verifier without
+the full development requirements. See `tools/preview/README.md`.
+
+Backend CI runs on pull requests and pushes to `main`; other feature branches can
+be checked locally or through manual workflow dispatch. Pip cache keys include
+both dependency manifests.

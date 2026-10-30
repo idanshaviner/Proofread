@@ -29,3 +29,13 @@ Composer state uses the standard iOS 17 Observation adapter around shared Founda
 The owner explicitly approved the backend-only Apple verifier foundation in `AUTHENTICATION_PROPOSAL.md` on October 15, 2026. Approval covers internal signature/claim verification and synthetic tests only. Sessions, sign-in UI, storage, private data, production authentication and deployment remain deferred. Expected audience comes from trusted backend configuration, and expected nonce means the exact expected token claim; caller-side hashing/challenge issuance and replay protection are separate integration work.
 
 These implementation choices do not authorize deployments, recurring expenses, production releases, private-data retention policies or finalized designs.
+
+## October 30 performance follow-through
+
+Owner authorized proceeding with the performance/cost opportunities. Routine work
+covers app-lifespan HTTP connection reuse, a smaller local-preview runtime and
+CI event deduplication. CI will automatically test pull requests and main pushes;
+feature branches without a PR use local tests or manual workflow dispatch. This
+avoids duplicate push+PR runs but intentionally changes pre-PR automatic coverage.
+It does not approve quota values, paid services, changed model/output caps,
+private response caching, data retention or production exposure.

@@ -51,14 +51,14 @@ dependencies_ready() {
 from importlib import import_module, metadata
 from pathlib import Path
 from packaging.requirements import Requirement
-for line in Path('backend/requirements.txt').read_text().splitlines():
+for line in Path('backend/requirements-runtime.txt').read_text().splitlines():
     if not line.strip() or line.lstrip().startswith('#'):
         continue
     requirement = Requirement(line)
     if requirement.marker is None or requirement.marker.evaluate():
         if metadata.version(requirement.name) not in requirement.specifier:
             raise RuntimeError('Dependency version mismatch')
-for module in ('fastapi', 'uvicorn', 'pydantic', 'httpx', 'jwt', 'cryptography'):
+for module in ('fastapi', 'uvicorn', 'pydantic', 'httpx'):
     import_module(module)
 PY
 }
@@ -67,7 +67,7 @@ if ! dependencies_ready; then
   if ! "$preview_python" -m pip --version >/dev/null 2>&1; then
     "$preview_python" -m ensurepip --upgrade
   fi
-  "$preview_python" -m pip install -r backend/requirements.txt
+  "$preview_python" -m pip install -r backend/requirements-runtime.txt
   if ! dependencies_ready; then
     echo "Preview dependencies remain incomplete; the server was not started. Retry after checking the installation errors." >&2
     exit 1
