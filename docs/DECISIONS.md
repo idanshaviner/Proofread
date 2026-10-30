@@ -39,3 +39,17 @@ feature branches without a PR use local tests or manual workflow dispatch. This
 avoids duplicate push+PR runs but intentionally changes pre-PR automatic coverage.
 It does not approve quota values, paid services, changed model/output caps,
 private response caching, data retention or production exposure.
+
+## October 30 owner keyboard direction
+
+The user established cross-application custom-keyboard assistance as a core eventual
+workflow and provided a new phase order. The source requirement is retained in
+`docs/source/KEYBOARD_REQUIREMENT_2026-10-30.md`; unrelated original finalized
+exports remain missing. This supersedes provisional indefinite keyboard deferral.
+The owner explicitly requires investigation/proposal and approval before extension
+implementation. `KEYBOARD_PROPOSAL.md` records platform constraints, architecture,
+privacy/context limitations, untested compatibility matrix and decisions. Current
+Apple source reads were blocked by proxy403; current vendor/review acceptance is
+not verified. No extension, privacy change, entitlement or paid service is approved
+by the requirement alone. A feasible custom keyboard is distinct from modifying
+Apple's built-in keyboard, and cannot automatically read host conversation history.

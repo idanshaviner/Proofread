@@ -177,3 +177,13 @@ Integrated backend: **374 passed**, one existing deprecation warning; dependency
 consistency passes. No Swift source changed in this follow-through (previous shared
 suite: 32 pass/1 optional skip). No Xcode/native or real-model acceptance is implied.
 No paid inference, quota policy, private caching/storage or campaign migration.
+
+### October 30 keyboard requirement and proposal
+
+Retained the owner's supplied source and updated provisional PRD/roadmap/instructions
+so the keyboard is no longer indefinitely deferred. Added `KEYBOARD_PROPOSAL.md`:
+reusable architecture, platform/context/privacy constraints, all-hosts-untested
+matrix, effort/cost ranges and decisions before implementation. Five official
+Apple read attempts returned proxy403; sources are linked but current contracts
+were not refreshed. No extension target, app workflow, entitlement, storage or API
+changed. This is documentation/proposal work; no native or compatibility tests ran.

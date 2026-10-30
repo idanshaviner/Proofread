@@ -1,6 +1,12 @@
 # Proofread PRD — provisional reconstruction
 **Not an imported finalized PRD.** Reconcile with the final ChatGPT Project PRD before treating as authoritative.
 
+**Owner update, October 30:** cross-application keyboard assistance is a core
+long-term requirement, superseding the earlier keyboard deferral below. See
+[source requirement](source/KEYBOARD_REQUIREMENT_2026-10-30.md) and the unapproved
+[implementation proposal](KEYBOARD_PROPOSAL.md). The current copy/paste harness is
+an intermediate test surface, not the intended final daily-use workflow.
+
 ## Problem and goal
 People need help sending better texts without sounding generic or unlike themselves. Proofread should help them communicate naturally, appropriately and confidently.
 
@@ -22,7 +28,7 @@ Initially college students and young adults, especially social and dating chats;
 - Evaluate actual perceived authenticity against a generic AI baseline.
 
 ## Deferred
-Autonomous sending, custom keyboard, deep simulated recipient agent, per-user fine-tuning, complex ranking unsupported by evidence.
+Autonomous sending, deep simulated recipient agent, per-user fine-tuning, complex ranking unsupported by evidence.
 
 ## Measures
 Blind human authenticity preference, goal relevance, naturalness, editing effort, response latency/cost and voluntary retention.

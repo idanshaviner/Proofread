@@ -57,3 +57,10 @@ so feature branches without a PR intentionally have no automatic push job. HTTP
 connection lifetime tests and integrated results are in the current status entry.
 Aggregate user quotas/concurrency policy, model/output tuning and private-response
 caching remain decisions or experiments, not implied by connection-pool reuse.
+
+Keyboard direction: read owner source and `KEYBOARD_PROPOSAL.md`. Await decisions
+on separate-keyboard feasibility spike, draft-only context semantics, final UI and
+shared session/data policy before implementation. Earlier indefinite keyboard
+MVP deferral is superseded; current lack of extension/personalization remains real.
+All host applications are untested and official Apple research is currently blocked.
+Continue unrelated routine fixes while decisions/platform prerequisites are pending.
