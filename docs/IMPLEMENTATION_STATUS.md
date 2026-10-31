@@ -308,3 +308,14 @@ checksum-guarded backup-first single-file patch passed apply/repeat/changed-file
 refusal checks; it leaves project/signing settings untouched. Completion-handler
 APIs remain intentional for late-start/stop tracking; async-alternative suggestions
 are not compilation errors. Capture behavior itself remains unverified.
+
+### Capture study clean/retry helper
+
+Owner requested folder cleanup and another run. Added a reversible local Mac helper
+that applies only the known corrected controller, backs up source and generated
+project-local caches, then compiles unsigned into fresh local DerivedData. It does
+not regenerate the Xcode project, overwrite signing settings, remove source or
+clear global caches. Failure stops before opening Xcode; logs remain in the backup.
+Two offline helper tests verify success/failure status, source/signing preservation
+and archived cache content. These are mocked tool checks, not actual Mac builds;
+owner must run the helper and report the native result.
