@@ -89,3 +89,12 @@ invented text; actual host tests use owned accounts/consenting participants. Cap
 adapter choice remains gated on real SDK evidence. `LOCAL_CAPTURE_STUDY.md` records
 preparation and verification boundaries; no network or context-sharing policy is
 silently authorized by the experiment.
+
+## Capture adapter SDK gate resolved
+
+Owner supplied actual Xcode27.2/iPhoneOS SDK27.2 public header declarations and
+reports iOS27.0.1. Choose modern ScreenCaptureKit for the approved synthetic study;
+do not use macOS-only capture configuration fields or assume legacy headers exist.
+Initial native test uses current-app-only sharing in a separate developer target,
+keeping existing keyboard/app signing intact. Cross-app delivery, keyboard context
+handoff, App Review and Snapchat behavior remain unverified and are not claimed.

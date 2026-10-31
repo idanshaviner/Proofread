@@ -46,3 +46,26 @@ Verify recognized text matches the invented fixture, Stop immediately clears tex
 away discards results, and no network activity or saved image appears. This proves
 only local OCR of an app-generated image, not permission to read iMessage/Snapchat.
 All real capture/session/host compatibility claims remain pending actual testing.
+
+## Owner SDK evidence and first native adapter
+
+The owner supplied the inspector output: Xcode27.2 build27B52, iPhoneOS SDK27.2.
+ScreenCaptureKit headers explicitly expose picker/filter/stream APIs on iOS27.
+They confirm mic/camera picker controls and `capturesAudio`, width and height;
+minimumFrameInterval, queueDepth, sourceRect and several desktop-style options
+are unavailable on iOS. Two legacy ReplayKit headers were absent at checked paths.
+The owner reports iOS27.0.1. Do not request this same evidence again.
+
+The first adapter uses the modern system picker with current-application-only
+selection. It does not promise cross-app or background delivery. A standalone
+`ios/CaptureStudy` XcodeGen target launches the study without a launch variable,
+backend or existing app/keyboard changes. New capture source still requires an
+actual device build/run; Linux syntax checking cannot validate SDK import names,
+entitlements, permission behavior or sample delivery. See that folder's README.
+
+No recording output is registered. Audio is disabled; the adapter must reject a
+filter enabling microphone/camera rather than processing it. A lock-gated receiver
+admits only a requested frame, and late work is invalidated on stop/session expiry.
+OCR uses local Vision only. First prove this current-app harness on invented text,
+then evaluate a separately explicit screen-wide mode within the approved study.
+Context transfer into the keyboard is not implemented in this stage.

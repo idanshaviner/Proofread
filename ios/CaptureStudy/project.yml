@@ -1,0 +1,25 @@
+name: ProofreadCaptureStudy
+options:
+  bundleIdPrefix: com.proofreadapp
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    IPHONEOS_DEPLOYMENT_TARGET: '27.0'
+    MARKETING_VERSION: 0.1
+    CURRENT_PROJECT_VERSION: 1
+targets:
+  ProofreadCaptureStudy:
+    type: application
+    platform: iOS
+    sources:
+      - path: CaptureStudyApp.swift
+      - path: ../Proofread/Models/CaptureStudySession.swift
+      - path: ../Proofread/Views/CaptureStudyView.swift
+      - path: ../Proofread/Views/ScreenCaptureStudyPanel.swift
+      - path: ../Proofread/Views/ScreenCaptureStudyController.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.proofreadapp.capturestudy
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Proofread Capture Study
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES

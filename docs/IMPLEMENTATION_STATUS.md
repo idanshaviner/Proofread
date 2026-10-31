@@ -274,3 +274,22 @@ source syntax parses, not iOS SDK typechecking. Actual screen-capture/OCR/host
 compatibility remains unverified. Need the owner's Mac SDK inspection output to
 select/validate modern iOS27 capture APIs; user has approved the narrow study and
 need not approve it again. See `LOCAL_CAPTURE_STUDY.md` for exact boundaries.
+
+### iOS27 capture adapter source and standalone test app
+
+Actual owner SDK output resolved the API gate: Xcode27.2 build27B52/iPhoneOS27.2
+headers expose modern ScreenCaptureKit; user reports device iOS27.0.1. Added an
+explicit system-picker, current-app-only capture study controller, one requested
+frame at a time, local Vision OCR, bounded pixels/text, expiry/Stop/background
+cleanup and stale-callback guards. Microphone/camera filters are rejected; audio
+is disabled; no recording-file output/network/shared container was added. A
+standalone `ios/CaptureStudy` target avoids altering the working keyboard signing.
+Stop errors block restart rather than assuming OS capture ended; instructions
+require system stop/relaunch when uncertain.
+
+Review caught/corrected the capture-button enable condition and Objective-C boolean
+getter import names. Static Swift syntax and YAML/source references pass. Shared
+Foundation tests: 54 passed, one optional local API skip; Observation compiler
+regression passes. **Native capture code has not been compiled against Apple's
+SDK or run here.** First device build/capture/OCR remains unverified; no cross-app,
+background, Snapchat notification, keyboard-transfer or App Review claim is made.

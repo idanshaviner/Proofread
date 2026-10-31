@@ -93,8 +93,16 @@ legacy ReplayKit and inspect actual Mac SDK headers. The owner has now approved
 local-only synthetic capture/OCR testing and accepts possible Snap notifications.
 Follow `LOCAL_CAPTURE_STUDY.md`; actual capture adapter/host behavior remains unverified.
 
-Current capture blocker: get output from `ios/scripts/inspect-capture-sdk.sh` on
-owner's Mac before writing the OS-specific capture adapter. Capture/OCR experiment
+Owner supplied the SDK inspector output: Xcode27.2/iPhoneOS SDK27.2 confirms
+modern iOS27 ScreenCaptureKit. Do not request the same evidence again. The next
+capture gate is actual compile/device behavior of the current-app-only adapter. Capture/OCR experiment
 is approved; no repeat approval needed within its local-only synthetic limits.
 Preparation self-test and 8 session-control tests are implemented, with54shared
 passes/1optional skip. Do not describe this as implemented screen capture.
+
+Capture next: build the separate `ios/CaptureStudy` developer target on owner's
+Mac/device, fix any actual SDK compiler diagnostics, and run current-app-only
+synthetic permission/frame/OCR/Stop/expiry tests. No further approval is needed
+within that study. Standard screen-wide/background tests follow only after this
+stage succeeds; current UI deliberately stops when backgrounded and provides no
+keyboard context transfer. Do not ask for the already-supplied SDK output again.
