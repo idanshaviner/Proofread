@@ -113,3 +113,10 @@ Apply the single-file capture-build patch then Command-R without regenerating th
 project/signing settings. Await actual native build/device result; local shared
 passes do not establish screen capture. Unresolved-picker cancellation/restart,
 orientation/frame freshness and stop behavior remain explicit device test cases.
+
+Current-app OCR was demonstrated by owner screenshot. The next approved synthetic
+probe is an optional wider-screen Notes switch test, with a fresh unique phrase
+NOT displayed in the app. Apply the four-existing-files patch (no XcodeGen/signing
+change) and rebuild. Match the Notes phrase on device; callback-time admission
+alone is not source timestamp/freshness evidence. Actual background/cross-app
+capture and Stop behavior remain unverified until that controlled result.

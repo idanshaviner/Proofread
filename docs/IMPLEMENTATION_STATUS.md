@@ -319,3 +319,20 @@ clear global caches. Failure stops before opening Xcode; logs remain in the back
 Two offline helper tests verify success/failure status, source/signing preservation
 and archived cache content. These are mocked tool checks, not actual Mac builds;
 owner must run the helper and report the native result.
+
+### Current-app OCR device evidence and controlled next probe
+
+Owner screenshot displays captured study UI text under the OCR-result heading,
+supporting one successful on-phone own-app capture/OCR result. It is output, not
+another controls panel. Added clearer output wording and an explicitly confirmed
+synthetic Notes switch option, default off. It arms one frame after five seconds,
+keeps the original result deadline and avoids the deliberate own-app background
+stop only in that explicit mode. No automatic Notes access or cross-app success
+is claimed. Match a unique phrase not displayed in the study UI; change it per run
+to avoid mistaking self-capture/stale output for success.
+
+New locked one-shot admission gate: 7 new tests; shared suite61passed/1optionalAPI
+skip, Observation compiler check passes. Native sources parse; actual new native
+build/background capture remains unverified. Callback receipt timing is bounded,
+not source-frame age; OS suspension may delay cleanup. User must return promptly,
+Stop and verify system sharing ended. No saved recordings, audio, network or AI.

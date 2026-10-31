@@ -69,3 +69,29 @@ admits only a requested frame, and late work is invalidated on stop/session expi
 OCR uses local Vision only. First prove this current-app harness on invented text,
 then evaluate a separately explicit screen-wide mode within the approved study.
 Context transfer into the keyboard is not implemented in this stage.
+
+## First device evidence and optional Notes switch test
+
+Owner screenshot shows the local OCR result reproducing the current study app's
+interface, including its sharing-active status and labels. This supports one actual
+current-app screen-frame/OCR success on the owner's phone. It does not prove
+cross-app capture, source freshness, notification behavior or keyboard transfer.
+
+An optional wider-screen synthetic test is now source-implemented. The own-app
+mode remains the default. User must turn on the Notes test and confirm that only
+invented text is displayed, then accept the system picker. After sharing starts,
+press Capture in 5 seconds and switch to a NEW Notes note with a unique invented
+phrase NOT shown in the study app. Change the phrase every run. Return within20s,
+inspect output and Stop. Disable private notification previews/use an appropriate
+Focus during the test; never open real chats to test this pipeline.
+
+The stream receiver drops callbacks before the five-second threshold and after
+the original30s deadline, before actor handoff. A locked Foundation gate admits
+one token; tests cover threshold, expiry, invalidation, clock failures and parallel
+consumers. This gates callback receipt time, NOT sample presentation-time freshness.
+If iOS suspends the process, callbacks/timers may stop or resume late. Result access
+expires on resume, but an OS capture indicator is not guaranteed to stop at exactly
+30s while backgrounded. Return promptly and stop using system controls if necessary.
+Own-app mode still stops on background; the optional switch test is deliberately
+different. A result containing only study labels, blank text or an old phrase is
+not a passing cross-app result. No keyboard bridge, App Group, network or AI added.

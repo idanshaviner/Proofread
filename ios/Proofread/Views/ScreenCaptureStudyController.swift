@@ -14,11 +14,14 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
     @Published private(set) var text = ""
     @Published private(set) var capturing = false
     @Published private(set) var running = false
+    @Published private(set) var sessionActive = false
 
     private let session = CaptureStudySession()
     private let outputQueue = DispatchQueue(label: "Proofread.study.frame", qos: .userInitiated)
     private let ocrQueue = DispatchQueue(label: "Proofread.study.ocr", qos: .userInitiated)
     private var activeID: UUID?
+    private var expiresAt: TimeInterval?
+    private var currentApplicationOnly = true
     private var stream: SCStream?
     private var receiver: StudyFrameReceiver?
     private var streamDelegate: StudyStreamDelegate?
@@ -45,8 +48,12 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
             status = "A system sharing picker is already active. Finish or cancel it first."
             return
         }
+        let deadline = ProcessInfo.processInfo.systemUptime + 30
         let id = session.begin()
         activeID = id
+        expiresAt = deadline
+        self.currentApplicationOnly = currentApplicationOnly
+        sessionActive = true
         text = ""
         status = "Choose the permitted synthetic screen in the system picker."
         let observer = StudyPickerObserver(sessionID: id,
@@ -66,8 +73,11 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
         picker.add(observer)
         picker.isActive = true
         expiration = Task { @MainActor [weak self] in
-            do { try await Task.sleep(nanoseconds: 30_000_000_000) }
-            catch { return }
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            if remaining > 0 {
+                do { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
+                catch { return }
+            }
             guard let self, self.activeID == id else { return }
             self.stop(message: "Study expired after 30 seconds; temporary text cleared.")
         }
@@ -76,7 +86,7 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self, self.activeID == id else { return }
-                self.stop(message: "Stopped on background; temporary text cleared.")
+                self.invalidateForBackground()
             }
         }
         if currentApplicationOnly { picker.presentForCurrentApplication() }
@@ -84,12 +94,44 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
     }
 
     func captureOneFrame() {
+        requestFrame(after: 0)
+    }
+
+    /// Explicit screen-wide synthetic study only. Admission uses callback time,
+    /// not an assumed conversion of sample presentation timestamps to uptime.
+    func captureAfterSwitch() {
+        guard !currentApplicationOnly else {
+            status = "Delayed capture requires an explicitly permitted screen-wide synthetic study."
+            return
+        }
+        requestFrame(after: 5)
+    }
+
+    func invalidateForBackground() {
+        if currentApplicationOnly {
+            stop(message: "Stopped on background; temporary text cleared.")
+        } else if let id = activeID {
+            // Screen-wide capture is an explicit, time-bounded test. iOS may
+            // suspend us; no continued background execution is promised.
+            _ = isCurrent(id)
+        }
+    }
+
+    private func requestFrame(after delay: TimeInterval) {
         guard let id = activeID, isCurrent(id), running, !capturing, !processingFrame,
-              let receiver, let token = session.requestFrame() else { return }
+              let receiver, let expiresAt else { return }
+        let notBefore = ProcessInfo.processInfo.systemUptime + delay
+        guard notBefore < expiresAt else {
+            stop(message: "Not enough study time remains for delayed capture. Start a new permitted session.")
+            return
+        }
+        guard let token = session.requestFrame() else { return }
         text = ""
         capturing = true
-        status = "Waiting for one frame for local OCR…"
-        guard receiver.request(token) else {
+        status = delay > 0
+            ? "Armed for one frame after five seconds. Switch to the synthetic Notes screen now; the original 30-second limit still applies."
+            : "Waiting for one frame for local OCR…"
+        guard receiver.request(token, notBefore: notBefore, expiresAt: expiresAt) else {
             stop(message: "A frame could not be requested; study stopped.")
             return
         }
@@ -185,7 +227,8 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
 
     private func isCurrent(_ id: UUID) -> Bool {
         guard activeID == id else { return false }
-        guard session.sessionID == id else {
+        guard let expiresAt, ProcessInfo.processInfo.systemUptime < expiresAt,
+              session.sessionID == id else {
             stop(message: "Study expired; temporary content cleared.")
             return false
         }
@@ -201,6 +244,9 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
 
     private func stop(message: String) {
         activeID = nil
+        expiresAt = nil
+        currentApplicationOnly = true
+        sessionActive = false
         session.stop()
         expiration?.cancel()
         expiration = nil
@@ -277,24 +323,24 @@ private final class StudyStreamDelegate: NSObject, SCStreamDelegate {
 @available(iOS 27.0, *)
 private final class StudyFrameReceiver: NSObject, SCStreamOutput {
     private let lock = NSLock()
-    private var pending: CaptureStudySession.FrameToken?
+    private let gate = OneShotFrameGate()
     private var callback: ((CaptureStudySession.FrameToken, CMSampleBuffer) -> Void)?
 
     init(callback: @escaping (CaptureStudySession.FrameToken, CMSampleBuffer) -> Void) {
         self.callback = callback
     }
 
-    func request(_ token: CaptureStudySession.FrameToken) -> Bool {
+    func request(_ token: CaptureStudySession.FrameToken, notBefore: TimeInterval,
+                 expiresAt: TimeInterval) -> Bool {
         lock.lock()
         defer { lock.unlock() }
-        guard callback != nil, pending == nil else { return false }
-        pending = token
-        return true
+        guard callback != nil else { return false }
+        return gate.arm(token, notBefore: notBefore, expiresAt: expiresAt)
     }
 
     func invalidate() {
         lock.lock()
-        pending = nil
+        gate.invalidate()
         callback = nil
         lock.unlock()
     }
@@ -302,8 +348,10 @@ private final class StudyFrameReceiver: NSObject, SCStreamOutput {
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         guard outputType == .screen else { return }
         lock.lock()
-        guard let token = pending, let deliver = callback else { lock.unlock(); return }
-        pending = nil
+        // Callback-time admission is checked here before retaining a frame for
+        // actor handoff. Expired or early callbacks schedule no Tasks. This does
+        // not establish the source frame's age or presentation-time clock domain.
+        guard let deliver = callback, let token = gate.consumeIfReady() else { lock.unlock(); return }
         lock.unlock()
         deliver(token, sampleBuffer)
     }

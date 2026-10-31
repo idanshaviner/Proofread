@@ -21,7 +21,7 @@ struct CaptureStudyView: View {
         NavigationStack {
             Form {
                 Section("Synthetic OCR check") {
-                    Text("The synthetic OCR self-test reads an app-generated image. The separate system capture test below requires your explicit permission and shares only this app. Neither test reads iMessage or Snapchat.")
+                    Text("The synthetic OCR self-test reads an app-generated image. The system test below defaults to sharing this app. An optional wider-screen test uses an invented note, with explicit confirmation and system permission. No iMessage or Snapchat compatibility is established.")
                     Text("No audio, saved image, network request or AI generation.")
                 }
                 Section("Synthetic image text") {
@@ -42,7 +42,7 @@ struct CaptureStudyView: View {
                 }
 #endif
                 Section("Next gate") {
-                    Text("The SDK exposes capture APIs, but their device behavior is not yet accepted. This first test does not establish cross-app access, keyboard context transfer or Snapchat compatibility.")
+                    Text("A current-app frame was successfully read on the test phone. The next controlled Notes test probes cross-app delivery. Keyboard context transfer, Snapchat compatibility and real AI replies remain unimplemented.")
                 }
             }
             .navigationTitle("Local capture study")

@@ -78,3 +78,55 @@ final class CaptureStudySession {
         }
     }
 }
+
+/// One opaque frame request, never a frame. All mutable state is protected by
+/// the lock; the injected clock is Sendable. Receiver lifetime/closure is owned
+/// separately: invalidation discards a request but permits explicit later rearm.
+final class OneShotFrameGate: @unchecked Sendable {
+    private struct Pending {
+        let token: CaptureStudySession.FrameToken
+        let armedAt: TimeInterval
+        let notBefore: TimeInterval
+        let expiresAt: TimeInterval
+    }
+
+    private let lock = NSLock()
+    private let clock: @Sendable () -> TimeInterval
+    private var pending: Pending?
+
+    init(clock: @Sendable @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }) {
+        self.clock = clock
+    }
+
+    func arm(_ token: CaptureStudySession.FrameToken, notBefore: TimeInterval,
+             expiresAt: TimeInterval) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard pending == nil else { return false }
+        let now = clock()
+        guard now.isFinite, notBefore.isFinite, expiresAt.isFinite,
+              expiresAt > now, expiresAt > notBefore else { return false }
+        pending = Pending(token: token, armedAt: now, notBefore: notBefore, expiresAt: expiresAt)
+        return true
+    }
+
+    func consumeIfReady() -> CaptureStudySession.FrameToken? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let request = pending else { return nil }
+        let now = clock()
+        guard now.isFinite, now >= request.armedAt, now < request.expiresAt else {
+            pending = nil
+            return nil
+        }
+        guard now >= request.notBefore else { return nil }
+        pending = nil
+        return request.token
+    }
+
+    func invalidate() {
+        lock.lock()
+        pending = nil
+        lock.unlock()
+    }
+}
