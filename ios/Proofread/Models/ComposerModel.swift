@@ -1,5 +1,5 @@
 import Foundation
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) || PROOFREAD_OBSERVATION_TYPECHECK
 import Observation
 #endif
 
@@ -30,7 +30,7 @@ struct ComposerInput: Equatable {
     }
 }
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) || PROOFREAD_OBSERVATION_TYPECHECK
 // Apple UI observation is the only platform adapter. State transitions below
 // are Foundation-only and exercised by the same tests on Linux.
 @Observable
@@ -48,14 +48,14 @@ final class ComposerModel {
     private(set) var copiedID: Int?
 
     private let generator: (ReplyRequest) async throws -> ReplyResult
-#if canImport(SwiftUI)
-    @ObservationIgnored
-#endif
+#if canImport(SwiftUI) || PROOFREAD_OBSERVATION_TYPECHECK
+    // Keep each macro with its declaration inside the same conditional branch.
+    @ObservationIgnored private var task: Task<Void, Never>?
+    @ObservationIgnored private var requestID: UUID?
+#else
     private var task: Task<Void, Never>?
-#if canImport(SwiftUI)
-    @ObservationIgnored
-#endif
     private var requestID: UUID?
+#endif
 
     init(generator: @escaping (ReplyRequest) async throws -> ReplyResult) {
         self.generator = generator

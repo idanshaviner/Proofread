@@ -73,3 +73,9 @@ HTTP integration; backend374/374. UIKit and all host apps remain unverified.
 No additional implementation approval is needed to debug this approved spike, but
 cloud networking, full typing UX, history/profile integration and release are not
 included. Do not advance to daily private use on offline-model test evidence.
+
+Native follow-up: owner's Xcode build now reaches source and exposed Observation
+macro errors. The conditional declaration fix and a compiler regression check are
+implemented; supply/apply the source patch and rerun actual Xcode validation.
+Previous native status remains unverified until a successful Mac build, not merely
+the passing Linux macro typecheck.

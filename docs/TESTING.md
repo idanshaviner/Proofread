@@ -102,3 +102,12 @@ explicit invalidation. The shared suite does not compile UIKit on Linux. Actual
 keyboard build/device acceptance and the host matrix are in
 `KEYBOARD_PROTOTYPE_TESTING.md`. Do not equate the mock API integration test with
 keyboard insertion or Full Access verification.
+
+## Observation compiler regression
+
+`ios/scripts/test-networking.sh` now runs `typecheck-observation.sh` before the
+shared suite. `PROOFREAD_OBSERVATION_TYPECHECK` enables the actual Observation macro
+path during compiler typechecking, without linking SwiftUI or the problematic
+Linux Observation runtime. It reproduced the owner's unexpected getter/init
+accessor diagnostics before fixing the conditional property declarations. This
+closes a compiler coverage gap; it is not a UIKit compile or an Xcode build.

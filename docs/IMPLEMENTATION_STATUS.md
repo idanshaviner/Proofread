@@ -207,3 +207,17 @@ pass static checks. **UIKit/iOS compilation, XcodeGen generation, keyboard layou
 permissions, insertion and all messaging-app compatibility remain unverified.**
 Current Apple source access remains blocked. See `KEYBOARD_PROTOTYPE_TESTING.md`;
 this implements the spike's code, not platform acceptance or product completion.
+
+### Observation native-build defect and correction
+
+Owner-supplied Xcode 27.2 build output reached compilation and failed in
+`ComposerModel` conditional `@ObservationIgnored` expansion (unexpected getter/init
+accessors). This was reproduced with the real Observation macro compiler path on
+Linux before changing source. Each ignored property and its attribute now live
+inside the same conditional declaration branch. The shared test entrypoint also
+forces an Observation typecheck without runtime linking, covering a path previously
+excluded on Linux. Compiler regression passes; 42 Swift tests pass with 1 optional
+local-API skip. No actual successful native/Xcode build is claimed: owner rerun is
+required. A checksum-guarded backup-first patch was tested, including repeat use,
+for the supplied source bundle. No backend, keyboard behavior or product scope
+changed in this fix.

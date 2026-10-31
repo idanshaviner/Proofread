@@ -6,6 +6,7 @@ cd "$(dirname "$0")/.."
 cache_root="$PWD/.build/caches"
 export CLANG_MODULE_CACHE_PATH="$cache_root/clang"
 export SWIFTPM_MODULECACHE_OVERRIDE="$cache_root/modules"
+bash scripts/typecheck-observation.sh
 exec "${SWIFT_BIN:-swift}" test \
   --cache-path "$cache_root/swiftpm" \
   --config-path "$cache_root/config" \
