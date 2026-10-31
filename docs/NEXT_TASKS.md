@@ -89,5 +89,12 @@ was invented or deployed. Stream-backed fixture fix needs actual Mac rerun.
 Research follow-up: read `CONTEXT_CAPTURE_RESEARCH.md` before claiming keyboard
 context is categorically impossible or promising automatic screen access. Owner
 reports iOS27.0.1; prioritize verified modern system capture APIs over deprecated
-legacy ReplayKit, inspect actual Mac SDK headers, then seek explicit approval for
-local-only synthetic capture/OCR testing. No capture scope is approved yet.
+legacy ReplayKit and inspect actual Mac SDK headers. The owner has now approved
+local-only synthetic capture/OCR testing and accepts possible Snap notifications.
+Follow `LOCAL_CAPTURE_STUDY.md`; actual capture adapter/host behavior remains unverified.
+
+Current capture blocker: get output from `ios/scripts/inspect-capture-sdk.sh` on
+owner's Mac before writing the OS-specific capture adapter. Capture/OCR experiment
+is approved; no repeat approval needed within its local-only synthetic limits.
+Preparation self-test and 8 session-control tests are implemented, with54shared
+passes/1optional skip. Do not describe this as implemented screen capture.

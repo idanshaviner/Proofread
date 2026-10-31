@@ -257,3 +257,20 @@ host compatibility or store acceptance is verified. Added a read-only SDK-header
 inspection script; Bash syntax passes. Direct Apple/Snap docs were blocked and
 secondary bindings are not treated as shipping SDK proof. Capture/privacy
 architecture approval is pending; no product behavior or paid calls changed.
+
+### Approved capture/OCR study preparation
+
+Added an explicit-launch-only native Vision self-test using an app-generated
+synthetic image, not a screen frame. No capture adapter, audio, image persistence,
+network, shared container or AI call was added. Added Foundation session control:
+one pending result, fresh session/request tokens, bounded nonblank text, 30-second
+expiry, Stop/invalidate and late-result rejection. Native self-test schedules
+cleanup and clears state on disappearance/backgrounding; its actual UIKit/Vision
+execution is unverified here. Normal launch remains the existing app.
+
+TDD: missing model/types failed first; 8 new control tests pass. Shared suite:
+54 passed, 1 optional local-API skip; Observation compiler check passes. Native
+source syntax parses, not iOS SDK typechecking. Actual screen-capture/OCR/host
+compatibility remains unverified. Need the owner's Mac SDK inspection output to
+select/validate modern iOS27 capture APIs; user has approved the narrow study and
+need not approve it again. See `LOCAL_CAPTURE_STUDY.md` for exact boundaries.

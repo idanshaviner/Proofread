@@ -78,3 +78,14 @@ remain unverified. Apple/Snap direct developer documentation remains blocked.
 `CONTEXT_CAPTURE_RESEARCH.md` records evidence, privacy/host restrictions and a
 concrete local-only experiment requiring approval. Research does not authorize
 screen capture, audio, context persistence, App Groups or cloud transmission.
+
+## Local capture study approval
+
+Owner explicitly approved the local-only synthetic feasibility experiment with
+system permission, no audio, no saved recordings and no cloud uploads, and accepts
+possible Snapchat notifications. This authorizes study implementation and testing,
+not detection suppression or broad private-data collection. Start with controlled
+invented text; actual host tests use owned accounts/consenting participants. Capture
+adapter choice remains gated on real SDK evidence. `LOCAL_CAPTURE_STUDY.md` records
+preparation and verification boundaries; no network or context-sharing policy is
+silently authorized by the experiment.

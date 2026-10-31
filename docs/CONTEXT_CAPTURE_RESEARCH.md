@@ -1,4 +1,8 @@
-# Alternatives to keyboard-only context — research, not implementation approval
+# Alternatives to keyboard-only context — research and approved study scope
+
+Update: the owner approved the narrow local-only synthetic experiment and accepts
+possible Snapchat capture notifications. See `LOCAL_CAPTURE_STUDY.md` for current
+preparation and SDK/device gates; no broad private-data integration is approved.
 
 Research date: October 30, 2026 (owner timezone). Scope: personal iMessage and
 Snapchat on iPhone. No screen capture, OCR pipeline, shared data container, API
@@ -131,7 +135,7 @@ because a similarly named macOS API exists.
 - App Review acceptance for a recording/OCR keyboard is not established. Current
   rules and platform-supported intended usage need verification before release.
 
-## Proposed experiment and go/no-go criteria — approval needed
+## Narrow approved experiment and go/no-go criteria
 
 A narrow **device-only, synthetic capture/OCR experiment**, not a product rollout:
 
@@ -154,5 +158,6 @@ value. No transcript guarantee or working product claim follows from API existen
 Recommendation: **retain the keyboard; investigate permissioned visual context**.
 First choose modern ScreenCaptureKit versus legacy broadcast from the actual SDK
 and phone OS. Prefer screenshot/share if session capture is too intrusive or host
-behavior makes it unsuitable. No implementation proceeds under research-only
-permission; ask approval for this explicit capture privacy scope and experiment.
+behavior makes it unsuitable. The owner subsequently approved this local-only synthetic experiment; current
+SDK/device verification still gates the capture adapter. Broader keyboard sharing,
+private conversations, retention and cloud integration need separate review.
