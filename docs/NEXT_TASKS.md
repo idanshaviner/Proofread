@@ -85,3 +85,9 @@ than launching only the containing app. Real device API use needs a reachable
 trusted HTTPS backend and secure cost/auth prerequisites; localhost cannot reach
 Mac from iPhone. New diagnostics make that failure actionable; no remote endpoint
 was invented or deployed. Stream-backed fixture fix needs actual Mac rerun.
+
+Research follow-up: read `CONTEXT_CAPTURE_RESEARCH.md` before claiming keyboard
+context is categorically impossible or promising automatic screen access. Owner
+reports iOS27.0.1; prioritize verified modern system capture APIs over deprecated
+legacy ReplayKit, inspect actual Mac SDK headers, then seek explicit approval for
+local-only synthetic capture/OCR testing. No capture scope is approved yet.

@@ -246,3 +246,14 @@ these corrections on the owner's toolchain. API credentials remain absent here;
 no backend deployment, paid inference, campaign reset or screenshot/context
 collection was performed. Screenshot/share OCR is a possible explicit-consent
 future workflow, not implemented screen reading.
+
+### Visual context research
+
+Research-only alternative documented in `CONTEXT_CAPTURE_RESEARCH.md`: retain the
+keyboard UI but investigate user-authorized screen capture + on-device OCR.
+Retrieved maintained API bindings expose iOS27 ScreenCaptureKit availability and
+legacy ReplayKit deprecation; owner reports iOS27.0.1. No on-device capture, OCR,
+host compatibility or store acceptance is verified. Added a read-only SDK-header
+inspection script; Bash syntax passes. Direct Apple/Snap docs were blocked and
+secondary bindings are not treated as shipping SDK proof. Capture/privacy
+architecture approval is pending; no product behavior or paid calls changed.

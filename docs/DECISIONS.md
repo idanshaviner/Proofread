@@ -65,3 +65,16 @@ uses no network or persistent state. RequestsOpenAccess is declared to permit
 optional permission-state testing; fixture suggestions do not require permission.
 Insertion refuses active text selection to avoid replacing host content. Current
 Apple reference access remains blocked and actual Xcode/device acceptance is unrun.
+
+## Context acquisition research — approval pending
+
+Owner requested alternatives to keyboard access limits for iMessage/Snapchat and
+reports iOS27.0.1. Public maintained Microsoft iOS bindings were retrieved for
+ScreenCaptureKit/ReplayKit/Vision/Messages; a Snap Camera Kit README was retrieved.
+They motivate a version-gated user-authorized visual capture/OCR experiment, not
+silent host transcript access. Main bindings annotate modern iOS27 capture APIs
+and deprecated legacy broadcast APIs; actual SDK/device acceptance and App Review
+remain unverified. Apple/Snap direct developer documentation remains blocked.
+`CONTEXT_CAPTURE_RESEARCH.md` records evidence, privacy/host restrictions and a
+concrete local-only experiment requiring approval. Research does not authorize
+screen capture, audio, context persistence, App Groups or cloud transmission.
