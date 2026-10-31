@@ -221,3 +221,14 @@ local-API skip. No actual successful native/Xcode build is claimed: owner rerun 
 required. A checksum-guarded backup-first patch was tested, including repeat use,
 for the supplied source bundle. No backend, keyboard behavior or product scope
 changed in this fix.
+
+### Device feedback and scope clarification
+
+Owner reports successful iPhone installation/launch and a connection error in the
+standalone app. Current default endpoint is simulator loopback, which points to
+the phone on device; a scheme override, if present, must be checked. No server was
+deployed by the offline spike. The owner-supplied preceding Mac log showed native
+BUILD SUCCEEDED but failed two networking fixture methods (four assertions), so
+Mac suite acceptance remains incomplete. See `DEVICE_KEYBOARD_UX_FOLLOWUP.md` for
+a feasible in-keyboard flow and unsupported screen-reading/button-injection
+constraints. No network/private-data/UX implementation changed in this follow-up.
