@@ -106,3 +106,10 @@ synthetic permission/frame/OCR/Stop/expiry tests. No further approval is needed
 within that study. Standard screen-wide/background tests follow only after this
 stage succeeds; current UI deliberately stops when backgrounded and provides no
 keyboard context transfer. Do not ask for the already-supplied SDK output again.
+
+Latest capture gate: owner Mac emitted concrete source compiler diagnostics;
+SDK overlay mutability, Swift selector rename and shadowed observer are corrected.
+Apply the single-file capture-build patch then Command-R without regenerating the
+project/signing settings. Await actual native build/device result; local shared
+passes do not establish screen capture. Unresolved-picker cancellation/restart,
+orientation/frame freshness and stop behavior remain explicit device test cases.

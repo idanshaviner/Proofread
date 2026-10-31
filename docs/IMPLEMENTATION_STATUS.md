@@ -293,3 +293,18 @@ Foundation tests: 54 passed, one optional local API skip; Observation compiler
 regression passes. **Native capture code has not been compiled against Apple's
 SDK or run here.** First device build/capture/OCR remains unverified; no cross-app,
 background, Snapchat notification, keyboard-transfer or App Review claim is made.
+
+### Capture SDK compiler corrections from owner's Mac
+
+Owner native build diagnostics identified mutable picker configuration overlay,
+`presentForCurrentApplication()` Swift rename and local observer shadowing. Source
+now uses var configuration, the reported Swift API name and explicit self property
+assignment. A one-frame retained read-only sample wrapper and lock-protected OCR
+worker document cross-queue sendability rather than sharing unguarded state. Vision
+cancellation occurs outside the lock. The source still requires actual SDK rebuild;
+Linux parsing is not native typechecking. Shared suite: 54 passed/1 optional skip.
+The shadowing error was reproduced in a compiler snippet before correction. A
+checksum-guarded backup-first single-file patch passed apply/repeat/changed-file
+refusal checks; it leaves project/signing settings untouched. Completion-handler
+APIs remain intentional for late-start/stop tracking; async-alternative suggestions
+are not compilation errors. Capture behavior itself remains unverified.

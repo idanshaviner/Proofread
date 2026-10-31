@@ -59,7 +59,7 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
                 }
             })
         pickerObserver = observer
-        let configuration = SCContentSharingPickerConfiguration()
+        var configuration = SCContentSharingPickerConfiguration()
         configuration.showsMicrophoneControl = false
         configuration.showsCameraControl = false
         picker.defaultConfiguration = configuration
@@ -79,7 +79,7 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
                 self.stop(message: "Stopped on background; temporary text cleared.")
             }
         }
-        if currentApplicationOnly { picker.presentPickerForCurrentApplication() }
+        if currentApplicationOnly { picker.presentForCurrentApplication() }
         else { picker.present() }
     }
 
@@ -121,7 +121,8 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
         let newReceiver = StudyFrameReceiver { [weak self] token, buffer in
             // The receiver admits only one explicitly requested frame before
             // scheduling this actor handoff. Other frames enqueue no Tasks.
-            Task { @MainActor [weak self] in self?.received(buffer, token: token) }
+            let frame = StudyFrame(buffer: buffer)
+            Task { @MainActor [weak self, frame] in self?.received(frame, token: token) }
         }
         streamDelegate = delegate
         receiver = newReceiver
@@ -155,14 +156,14 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
         }
     }
 
-    private func received(_ buffer: CMSampleBuffer, token: CaptureStudySession.FrameToken) {
+    private func received(_ frame: StudyFrame, token: CaptureStudySession.FrameToken) {
         guard isCurrent(token.sessionID), running, capturing, !processingFrame else { return }
         processingFrame = true
         let work = StudyOCRWork()
         ocrWork = work
         status = "Recognizing one frame locally…"
-        ocrQueue.async { [weak self] in
-            let result = work.recognize(buffer)
+        ocrQueue.async { [weak self, frame, work] in
+            let result = work.recognize(frame.buffer)
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 self.processingFrame = false
@@ -194,7 +195,7 @@ final class ScreenCaptureStudyController: NSObject, ObservableObject {
     private func detachPicker() {
         guard let pickerObserver else { return }
         SCContentSharingPicker.shared.remove(pickerObserver)
-        pickerObserver = nil
+        self.pickerObserver = nil
         SCContentSharingPicker.shared.isActive = false
     }
 
@@ -308,7 +309,16 @@ private final class StudyFrameReceiver: NSObject, SCStreamOutput {
     }
 }
 
-private final class StudyOCRWork {
+// The capture output transfers exactly one retained sample, then drops its local
+// reference. Consumers only read it; no pixel-buffer mutation is exposed by this
+// wrapper. It never leaves this one-frame local OCR pipeline.
+private struct StudyFrame: @unchecked Sendable {
+    let buffer: CMSampleBuffer
+}
+
+// Cross-queue cancellation is protected by `lock`; recognize is called once on
+// the serial OCR queue. No unlocked mutable state is shared between actors.
+private final class StudyOCRWork: @unchecked Sendable {
     private let lock = NSLock()
     private var canceled = false
     private var request: VNRecognizeTextRequest?
@@ -317,8 +327,9 @@ private final class StudyOCRWork {
     func cancel() {
         lock.lock()
         canceled = true
-        request?.cancel()
+        let activeRequest = request
         lock.unlock()
+        activeRequest?.cancel()
     }
 
     func recognize(_ buffer: CMSampleBuffer) -> Result<String, Error> {
