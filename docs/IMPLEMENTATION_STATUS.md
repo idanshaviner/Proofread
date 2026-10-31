@@ -232,3 +232,17 @@ BUILD SUCCEEDED but failed two networking fixture methods (four assertions), so
 Mac suite acceptance remains incomplete. See `DEVICE_KEYBOARD_UX_FOLLOWUP.md` for
 a feasible in-keyboard flow and unsupported screen-reading/button-injection
 constraints. No network/private-data/UX implementation changed in this follow-up.
+
+### Device setup follow-through
+
+Physical-device loopback configuration now reports a setup-specific diagnostic,
+without changing HTTPS-only remote endpoint policy or silently falling back to
+fixtures. The app displays the actual safe configuration error. Simulator/Linux
+loopback development remains allowed. Mac request-fixture inspection now accepts
+URLSession's stream-backed body, with bounded stream regression coverage; no
+production transport was changed. Observation typecheck passes; shared suite:
+46 passed, 1 optional local API skip. Mac/Xcode rerun is still required to accept
+these corrections on the owner's toolchain. API credentials remain absent here;
+no backend deployment, paid inference, campaign reset or screenshot/context
+collection was performed. Screenshot/share OCR is a possible explicit-consent
+future workflow, not implemented screen reading.

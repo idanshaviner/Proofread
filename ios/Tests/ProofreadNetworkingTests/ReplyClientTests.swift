@@ -30,7 +30,7 @@ final class ReplyClientTests: XCTestCase {
             XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json")
             XCTAssertEqual(request.value(forHTTPHeaderField: "Accept"), "application/json")
             XCTAssertEqual(request.timeoutInterval, 45)
-            let body = try XCTUnwrap(request.httpBody)
+            let body = try requestBodyData(request)
             let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
             XCTAssertEqual(payload["mode"] as? String, "generate")
             XCTAssertEqual(payload["incoming_message"] as? String, "Want to meet?")
@@ -50,7 +50,7 @@ final class ReplyClientTests: XCTestCase {
     func testRewriteEncodesDraftAndDecodesActualAPIFixture() async throws {
         let data = try fixture("rewrite")
         StubURLProtocol.handler = { request in
-            let body = try XCTUnwrap(request.httpBody)
+            let body = try requestBodyData(request)
             let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
             XCTAssertEqual(payload["mode"] as? String, "rewrite")
             XCTAssertEqual(payload["draft"] as? String, "See you soon")
@@ -59,6 +59,20 @@ final class ReplyClientTests: XCTestCase {
         let result = try await client().generate(payload(rewrite: true))
         XCTAssertEqual(result.candidates.first?.text, "See you soon")
         XCTAssertEqual(result.candidates.count, 3)
+    }
+
+    func testRequestFixtureReadsStreamBodyUsedByAppleURLSession() throws {
+        let body = Data("{\"mode\":\"generate\"}".utf8)
+        var request = URLRequest(url: baseURL)
+        request.httpBodyStream = InputStream(data: body)
+        XCTAssertNil(request.httpBody)
+        XCTAssertEqual(try requestBodyData(request), body)
+    }
+
+    func testRequestFixtureRejectsOversizedStream() {
+        var request = URLRequest(url: baseURL)
+        request.httpBodyStream = InputStream(data: Data(repeating: 1, count: 65_537))
+        XCTAssertThrowsError(try requestBodyData(request))
     }
 
     func testCanonicallyEquivalentRepliesAreRejected() async throws {
@@ -234,3 +248,23 @@ private final class StubURLProtocol: URLProtocol {
 
     override func stopLoading() {}
 }
+
+// URLSession on Apple platforms may present an encoded request as a stream.
+// Inspect both representations without changing the production client.
+private func requestBodyData(_ request: URLRequest) throws -> Data {
+    if let body = request.httpBody { return body }
+    guard let stream = request.httpBodyStream else { throw StubBodyError.missing }
+    stream.open()
+    defer { stream.close() }
+    var result = Data()
+    var buffer = [UInt8](repeating: 0, count: 4_096)
+    while true {
+        let count = stream.read(&buffer, maxLength: buffer.count)
+        if count < 0 { throw StubBodyError.unreadable }
+        if count == 0 { return result }
+        guard result.count + count <= 65_536 else { throw StubBodyError.tooLarge }
+        result.append(contentsOf: buffer.prefix(count))
+    }
+}
+
+private enum StubBodyError: Error { case missing, unreadable, tooLarge }

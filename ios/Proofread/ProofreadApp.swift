@@ -4,13 +4,14 @@ import SwiftUI
 struct ProofreadApp: App {
     var body: some Scene {
         WindowGroup {
-            if let baseURL = try? ReplyClientConfiguration.baseURL() {
+            switch Result(catching: { try ReplyClientConfiguration.baseURL() }) {
+            case .success(let baseURL):
                 ComposerView(client: ReplyClient(baseURL: baseURL))
-            } else {
+            case .failure(let error):
                 ContentUnavailableView(
                     "Backend configuration needed",
                     systemImage: "network",
-                    description: Text(ReplyClientConfiguration.ConfigurationError.invalidBaseURL.localizedDescription)
+                    description: Text(error.localizedDescription)
                 )
             }
         }

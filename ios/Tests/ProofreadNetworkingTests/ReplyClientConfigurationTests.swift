@@ -17,6 +17,21 @@ final class ReplyClientConfigurationTests: XCTestCase {
         }
     }
 
+    func testPhysicalDeviceRejectsSimulatorOnlyEndpoints() {
+        for endpoint in ["http://127.0.0.1:8000", "http://localhost:8000", "https://[::1]:8000"] {
+            XCTAssertThrowsError(try ReplyClientConfiguration.baseURL(
+                environment: [:], configuredValue: endpoint, physicalDevice: true)) { error in
+                XCTAssertTrue(error.localizedDescription.contains("iPhone"))
+            }
+        }
+    }
+
+    func testPhysicalDeviceAcceptsReachableHTTPSConfiguration() throws {
+        let endpoint = "https://example.invalid/api"
+        XCTAssertEqual(try ReplyClientConfiguration.baseURL(
+            environment: [:], configuredValue: endpoint, physicalDevice: true).absoluteString, endpoint)
+    }
+
     func testInvalidEndpointsAreRejectedWithoutEchoingTheirValues() {
         for value in ["", "not a URL", "ftp://example.invalid", "http://example.invalid", "http://192.168.1.2:8000", "https://user:private-secret@example.invalid", "https://example.invalid?token=private-secret", "https://example.invalid#private-secret"] {
             XCTAssertThrowsError(try ReplyClientConfiguration.baseURL(environment: ["PROOFREAD_API_BASE_URL": value], configuredValue: nil)) { error in

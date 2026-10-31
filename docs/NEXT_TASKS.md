@@ -79,3 +79,9 @@ macro errors. The conditional declaration fix and a compiler regression check ar
 implemented; supply/apply the source patch and rerun actual Xcode validation.
 Previous native status remains unverified until a successful Mac build, not merely
 the passing Linux macro typecheck.
+
+Device setup: confirm owner selected the installed extension via iOS globe rather
+than launching only the containing app. Real device API use needs a reachable
+trusted HTTPS backend and secure cost/auth prerequisites; localhost cannot reach
+Mac from iPhone. New diagnostics make that failure actionable; no remote endpoint
+was invented or deployed. Stream-backed fixture fix needs actual Mac rerun.
