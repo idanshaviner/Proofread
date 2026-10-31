@@ -14,24 +14,19 @@ if [[ ! -f "$controller" || ! -d "$xcode_project" || -L "$controller" ]]; then
   echo 'Expected existing capture-study source and Xcode project were not found. Nothing changed.' >&2
   exit 1
 fi
-current_hash="$(shasum -a 256 "$controller" | awk '{print $1}')"
-case "$current_hash" in
-  b09ea54dce626914ab4796b89c6786dc068d6a3f89a44bac1af8f3493901d4c9|0414e1816e205e6d18cffdd8ce4a00226d579abb18440cd88d20cc907c3cdffb) ;;
-  *) echo 'Source has unexpected edits. Nothing changed; keep it and report this message.' >&2; exit 1 ;;
-esac
-# Bundles include the source; repository use reads the authoritative source file.
+# Bundles include source; repository execution uses the authoritative current file.
 supplied_source="$helper_dir/ScreenCaptureStudyController.swift"
 if [[ ! -f "$supplied_source" ]]; then
   supplied_source="$helper_dir/../../ios/Proofread/Views/ScreenCaptureStudyController.swift"
 fi
-# All helpers/provided sources must be present before moving generated output.
 if [[ ! -f "$supplied_source" ]]; then
   echo 'Extract the complete helper ZIP first. Nothing changed.' >&2
   exit 1
 fi
+current_hash="$(shasum -a 256 "$controller" | awk '{print $1}')"
 supplied_hash="$(shasum -a 256 "$supplied_source" | awk '{print $1}')"
-if [[ "$supplied_hash" != 0414e1816e205e6d18cffdd8ce4a00226d579abb18440cd88d20cc907c3cdffb ]]; then
-  echo 'Supplied source does not match this helper. Nothing changed.' >&2
+if [[ "$current_hash" != "$supplied_hash" && "$current_hash" != b09ea54dce626914ab4796b89c6786dc068d6a3f89a44bac1af8f3493901d4c9 && "$current_hash" != 0414e1816e205e6d18cffdd8ce4a00226d579abb18440cd88d20cc907c3cdffb ]]; then
+  echo 'Source has unexpected edits. Nothing changed; keep it and report this message.' >&2
   exit 1
 fi
 for generated in "$project_root/ios/.build" "$study_dir/.build" "$study_dir/build"; do

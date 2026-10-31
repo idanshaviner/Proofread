@@ -336,3 +336,18 @@ skip, Observation compiler check passes. Native sources parse; actual new native
 build/background capture remains unverified. Callback receipt timing is bounded,
 not source-frame age; OS suspension may delay cleanup. User must return promptly,
 Stop and verify system sharing ended. No saved recordings, audio, network or AI.
+
+### Owner Mac folder organization helper
+
+Prepared a local organizer for explicitly named prior Proofread demos, ZIPs and
+research downloads. It moves them into a dated `Documents/Proofread Archive`,
+records paths in MOVED.json, leaves the working capture-study path/source/signing
+intact, and installs the Notes updater as a local project tool (without executing
+it). START-HERE.txt provides a single run path. No unrelated GitHub/Codex/user
+files or broad name-glob matches are moved. Tests verify archival, project/signing
+and unrelated-file preservation, plus preflight symlink refusal. Actual Mac
+organization is pending owner execution, not claimed performed remotely.
+
+Also corrected the repository cleanup helper to accept its authoritative current
+source instead of assuming the earlier fixed controller hash forever. Unknown
+source edits still fail closed; tests preserve build failure propagation.
